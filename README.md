@@ -4,7 +4,7 @@ An NPM library template using Bun.
 
 ## Scripts
 
-All script sources.
+All script sources and usage.
 
 ### [Build](./scripts/build.ts)
 
@@ -17,6 +17,18 @@ Move [`package.json`](./package.json), [`README.md`](./README.md) to [`lib`](./l
 ### [Bench](./scripts/bench.ts)
 
 Run files that ends with `.bench.ts` extension.
+
+To run a specific file.
+```bash
+bun bench index # Run bench/index.bench.ts
+```
+
+To run the benchmark in `node`, add a `--node` parameter
+```bash
+bun bench --node
+
+bun bench --node index # Run bench/index.bench.ts with node
+```
 
 ## Package scripts
 
