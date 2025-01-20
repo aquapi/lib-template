@@ -29,24 +29,3 @@ bun bench --node
 
 bun bench --node index # Run bench/index.bench.ts with node
 ```
-
-## Package scripts
-
-All specified scripts in [`package.json`](./package.json).
-
-```bash
-# Build and run tests
-bun build:test
-
-# Build and run benchmarks
-bun build:bench
-
-# Build and publish the package
-bun build:publish
-
-# Lint
-bun lint
-
-# Lint and fix if possible
-bun lint:fix
-```
