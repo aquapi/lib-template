@@ -22,7 +22,9 @@
     "mitata": "latest",
     "typescript": "latest",
     "tsx": "latest",
-    "typescript-eslint": "latest"
+    "typescript-eslint": "latest",
+    "uglify-js": "latest",
+    "@types/uglify-js": "latest"
   },
   "dependencies": {}
 }
