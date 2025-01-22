@@ -3,14 +3,17 @@ import { minify } from 'uglify-js';
 const DIR = import.meta.dir + '/../lib/';
 
 const sizes: {
-  Entry: string,
-  Size: string,
-  Minified: string,
-  GZIP: string,
-  "Minified GZIP": string,
+  entry: string,
+  size: number,
+  minified: number,
+  gzip: number,
+  minifiedGzip: number,
 }[] = [];
 
-const toKB = (num: number) => (num / 1e3).toFixed(2) + 'KB';
+const toByte = (num: number) =>
+  num >= 1e3
+    ? (num / 1e3).toFixed(2) + 'KB'
+    : num + 'B';
 
 for await (const path of new Bun.Glob('**/*.js').scan(DIR)) {
   const file = Bun.file(DIR + path);
@@ -22,12 +25,21 @@ for await (const path of new Bun.Glob('**/*.js').scan(DIR)) {
   const minfiedCode = minify(code).code;
 
   sizes.push({
-    Entry: path,
-    Size: toKB(file.size),
-    Minified: toKB(Buffer.from(minfiedCode).byteLength),
-    GZIP: toKB(Bun.gzipSync(code).byteLength),
-    "Minified GZIP": toKB(Bun.gzipSync(minfiedCode).byteLength)
+    entry: path,
+    size: file.size,
+    minified: Buffer.from(minfiedCode).byteLength,
+    gzip: Bun.gzipSync(code).byteLength,
+    minifiedGzip: Bun.gzipSync(minfiedCode).byteLength
   });
 }
 
-console.table(sizes);
+sizes.sort((a, b) => a.size - b.size);
+
+// Convert to table columns
+console.table(sizes.map((val) => ({
+  Entry: val.entry,
+  Size: toByte(val.size),
+  Minify: toByte(val.minified),
+  GZIP: toByte(val.gzip),
+  "Minify GZIP": toByte(val.minifiedGzip)
+})));
