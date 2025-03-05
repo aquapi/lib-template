@@ -1,7 +1,7 @@
 {
   "name": "example",
   "version": "0.0.1",
-  "description": "Example package",
+  "description": "",
   "keywords": [],
   "license": "MIT",
   "type": "module",
@@ -17,14 +17,13 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
+    "@types/uglify-js": "latest",
     "eslint": "latest",
     "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
-    "typescript": "latest",
+    "terser": "^5.39.0",
     "tsx": "latest",
-    "typescript-eslint": "latest",
-    "uglify-js": "latest",
-    "@types/uglify-js": "latest"
-  },
-  "dependencies": {}
+    "typescript": "latest",
+    "typescript-eslint": "latest"
+  }
 }
