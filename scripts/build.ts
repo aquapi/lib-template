@@ -1,21 +1,19 @@
 /// <reference types='bun-types' />
 import { existsSync, rmSync } from 'node:fs';
-import { resolve, join } from 'node:path/posix';
+import * as latch from 'ciorent/latch';
 
 import { transpileDeclaration } from 'typescript';
 import tsconfig from '../tsconfig.json';
-
-// Constants
-const ROOTDIR = resolve(import.meta.dir, '..');
-const SOURCEDIR = `${ROOTDIR}/src`;
-const OUTDIR = join(ROOTDIR, tsconfig.compilerOptions.declarationDir);
+import pkg from '../package.json';
+import { LIB, ROOT, SOURCE } from './utils';
 
 // Remove old content
-if (existsSync(OUTDIR)) rmSync(OUTDIR, { recursive: true });
+if (existsSync(LIB))
+  rmSync(LIB, { recursive: true });
 
 // Transpile files concurrently
 const transpiler = new Bun.Transpiler({
-  loader: 'tsx',
+  loader: 'ts',
   target: 'node',
 
   // Lighter output
@@ -23,21 +21,38 @@ const transpiler = new Bun.Transpiler({
   treeShaking: true
 });
 
-for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCEDIR)) {
-  const srcPath = `${SOURCEDIR}/${path}`;
+// @ts-ignore
+const exports = pkg.exports = {} as Record<string, string>;
 
-  const pathExtStart = path.lastIndexOf('.');
-  const outPathNoExt = `${OUTDIR}/${path.substring(0, pathExtStart >>> 0)}`;
+{
+  const promises: Promise<any>[] = [];
 
-  Bun.file(srcPath)
-    .text()
-    .then((buf) => {
-      transpiler.transform(buf)
-        .then((res) => {
-          if (res.length !== 0)
-            Bun.write(`${outPathNoExt}.js`, res.replace(/const /g, 'let '));
-        });
+  for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCE)) {
+    promises.push(
+      (async () => {
+        const pathNoExt = path.substring(0, path.lastIndexOf('.') >>> 0);
 
-      Bun.write(`${outPathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
-    });
+        const buf = await Bun.file(`${SOURCE}/${path}`).text();
+        Bun.write(`${LIB}/${pathNoExt}.d.ts`, transpileDeclaration(buf, tsconfig as any).outputText);
+
+        const transformed = await transpiler.transform(buf);
+        if (transformed !== '')
+          Bun.write(`${LIB}/${pathNoExt}.js`, transformed.replace(/const /g, 'let '));
+
+        exports[
+          pathNoExt === 'index'
+            ? '.'
+            :'./' + (pathNoExt.endsWith('/index')
+              ? pathNoExt.slice(0, -6)
+              : pathNoExt
+            )
+        ] = './' + pathNoExt + (transformed === '' ? '.d.ts' : '.js');
+      })()
+    );
+  }
+
+  (async () => {
+    await Promise.all(promises);
+    await Bun.write(ROOT + '/package.json', JSON.stringify(pkg, null, 2));
+  })();
 }

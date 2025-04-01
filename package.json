@@ -18,6 +18,7 @@
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
+    "ciorent": "^0.0.17",
     "eslint": "latest",
     "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
@@ -25,5 +26,8 @@
     "tsx": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest"
+  },
+  "exports": {
+    ".": "./index.js"
   }
 }
