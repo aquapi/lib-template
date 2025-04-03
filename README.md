@@ -2,6 +2,10 @@
 
 An NPM library template using Bun.
 
+```sh
+bun create https://github.com/aquapi/lib-template
+```
+
 ## Scripts
 
 All script sources and usage.

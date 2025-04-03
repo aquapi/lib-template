@@ -38,7 +38,7 @@ const exports = pkg.exports = {} as Record<string, string>;
 
         const transformed = await transpiler.transform(buf);
         if (transformed !== '')
-          Bun.write(`${LIB}/${pathNoExt}.mjs`, transformed.replace(/const /g, 'let '));
+          Bun.write(`${LIB}/${pathNoExt}.js`, transformed.replace(/const /g, 'let '));
 
         exports[
           pathNoExt === 'index'
@@ -47,7 +47,7 @@ const exports = pkg.exports = {} as Record<string, string>;
               ? pathNoExt.slice(0, -6)
               : pathNoExt
             )
-        ] = './' + pathNoExt + (transformed === '' ? '.d.ts' : '.mjs');
+        ] = './' + pathNoExt + (transformed === '' ? '.d.ts' : '.js');
       })()
     );
   }
