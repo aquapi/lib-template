@@ -52,7 +52,7 @@
       "correctness": {
         "useYield": "warn",
         "noUnusedImports": "warn",
-        "useImportExtensions": "warn"
+        "useImportExtensions": "error"
       },
       "suspicious": {
         "noAssignInExpressions": "off",

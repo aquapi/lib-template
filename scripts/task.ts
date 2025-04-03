@@ -1,4 +1,4 @@
-import { SCRIPTS } from './utils';
+import { SCRIPTS } from './utils.js';
 
 const task = process.argv[2];
 if (task == null) throw new Error('A task must be specified!');
