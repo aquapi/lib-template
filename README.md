@@ -8,24 +8,45 @@ All script sources and usage.
 
 ### [Build](./scripts/build.ts)
 
-Emit `.js` and `.d.ts` files to [`lib`](./lib).
+Emit `.mjs` and `.d.ts` files to [`lib`](./lib).
+
+```sh
+bun task build
+```
 
 ### [Publish](./scripts/publish.ts)
 
-Move [`package.json`](./package.json), [`README.md`](./README.md) to [`lib`](./lib) and publish the package.
+Publish the package.
+
+```sh
+bun task publish
+```
 
 ### [Bench](./scripts/bench.ts)
 
-Run files that ends with `.bench.ts` extension.
+Run all files that ends with `.bench.ts` in [`bench`](./lib).
 
-To run a specific file.
-```bash
-bun bench index # Run bench/index.bench.ts
+```sh
+bun task bench
 ```
 
-To run the benchmark in `node`, add a `--node` parameter
-```bash
-bun bench --node
+To run a specific file.
 
-bun bench --node index # Run bench/index.bench.ts with node
+```sh
+bun task bench index # Run bench/index.bench.ts
+```
+
+To run the benchmarks in `node`.
+```bash
+bun task bench --node
+
+bun task bench --node index # Run bench/index.bench.ts with node
+```
+
+### [Size report](./scripts/report-size.ts)
+
+Report code size, minified size, gzipped size and minified gzipped size of every **built** entrypoint.
+
+```sh
+bun task report-size
 ```

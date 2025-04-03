@@ -1,5 +1,5 @@
 import { minify_sync } from 'terser';
-import { LIB } from './utils';
+import { LIB } from './utils.js';
 
 const sizes: {
   entry: string,
@@ -14,7 +14,7 @@ const toByte = (num: number) =>
     ? (num / 1e3).toFixed(2) + 'KB'
     : num + 'B';
 
-for await (const path of new Bun.Glob('**/*.js').scan(LIB)) {
+for await (const path of new Bun.Glob('**/*.mjs').scan(LIB)) {
   const file = Bun.file(LIB + '/' + path);
   const code = await file.text();
   const minfiedCode = minify_sync(code).code!;
