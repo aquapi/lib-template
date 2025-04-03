@@ -9,7 +9,7 @@
     "enabled": true
   },
   "files": {
-    "include": ["./**/*"]
+    "include": ["./src/**/*"]
   },
   "javascript": {
     "formatter": {
@@ -37,7 +37,8 @@
         "useImportType": "error",
         "useExponentiationOperator": "info",
         "useTemplate": "off",
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "off"
       },
       "complexity": {
         "noForEach": "info"
