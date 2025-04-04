@@ -53,6 +53,7 @@ if (existsSync(LIB))
 
   await Promise.all(promises);
 
+  delete pkg.trustedDependencies;
   delete pkg.devDependencies;
   delete pkg.scripts;
 
