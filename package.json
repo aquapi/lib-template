@@ -9,7 +9,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
-    "fmt": "biome format ./src",
+    "fmt": "biome format .",
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish"
   },
