@@ -5,7 +5,6 @@
   },
   "files": {
     "experimentalScannerIgnores": ["node_modules"],
-
     "includes": [
       "**/*.{js,ts,jsx,tsx,json,astro,svelte,vue}",
       "!{lib,bench}/**/*"
