@@ -10,7 +10,7 @@
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "biome format .",
-    "link": "biome check .",
+    "lint": "biome check .",
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish"
   },
