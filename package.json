@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "",
   "keywords": [],
+  "repository": {},
+  "homepage": "",
   "license": "MIT",
   "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "biome format .",
