@@ -2,6 +2,7 @@
   "compilerOptions": {
     // Enable latest features
     "lib": [
+      "ESNext.AsyncIterable",
       "ESNext",
       "DOM",
       "DOM.Iterable",
