@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
   "vcs": {
     "enabled": false
   },
@@ -27,8 +27,6 @@
     "enabled": true,
     "rules": {
       "style": {
-        "noEnum": "error",
-        "noCommonJs": "error",
         "useConsistentArrayType": "error",
         "noNamespace": "error",
         "noImplicitBoolean": "warn",
@@ -44,17 +42,17 @@
         "noUselessCatch": "info",
         "useArrowFunction": "warn"
       },
-      "nursery": {
-        "noShadow": "warn",
-        "noGlobalDirnameFilename": "error",
-        "useIndexOf": "warn",
-        "noImportCycles": "error"
-      },
       "correctness": {
         "useYield": "warn",
         "noUnusedImports": "warn",
         "useImportExtensions": "error",
         "useIsNan": "warn"
+      },
+      "nursery": {
+        "noImportCycles": "error",
+        "noShadow": "error",
+        "useExhaustiveSwitchCases": "info",
+        "noUnassignedVariables": "warn"
       },
       "recommended": false
     }
