@@ -21,6 +21,7 @@ await Promise.all(
       {
         sourceType: 'module',
         typescript: {
+          rewriteImportExtensions: true,
           declaration: {
             stripInternal: true,
           },
