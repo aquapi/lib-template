@@ -3,8 +3,8 @@
   "compilerOptions": {
     "isolatedModules": false,
     "isolatedDeclarations": false,
-    "allowJs": true,
-    "paths": {
-    }
+    "allowImportingTsExtensions": true,
+    "allowArbitraryExtensions": true,
+    "allowJs": true
   }
 }

@@ -15,29 +15,23 @@ await Promise.all(
   [...new Bun.Glob('**/*.ts').scanSync(SOURCE)].map(async (path) => {
     const pathNoExt = path.slice(0, path.lastIndexOf('.') >>> 0);
 
-    const transformed = transform(
-      path,
-      await Bun.file(`${SOURCE}/${path}`).text(),
-      {
-        sourceType: 'module',
-        typescript: {
-          rewriteImportExtensions: true,
-          declaration: {
-            stripInternal: true,
-          },
+    const transformed = transform(path, await Bun.file(`${SOURCE}/${path}`).text(), {
+      sourceType: 'module',
+      typescript: {
+        rewriteImportExtensions: true,
+        declaration: {
+          stripInternal: true,
         },
-        lang: 'ts',
       },
-    );
+      lang: 'ts',
+    });
 
     if (transformed.code !== '')
       Bun.write(
         `${LIB}/${pathNoExt}.js`,
         minify(
           path,
-          transformed.code.replace(/const (.*) =/g, (a) =>
-            a.replace('const', 'let'),
-          ),
+          transformed.code.replace(/const (.*) =/g, (a) => a.replace('const', 'let')),
           {
             compress: false,
           },
@@ -49,8 +43,7 @@ await Promise.all(
       exports[
         pathNoExt === 'index'
           ? '.'
-          : './' +
-            (pathNoExt.endsWith('/index') ? pathNoExt.slice(0, -6) : pathNoExt)
+          : './' + (pathNoExt.endsWith('/index') ? pathNoExt.slice(0, -6) : pathNoExt)
       ] = './' + pathNoExt + (transformed.code === '' ? '.d.ts' : '.js');
     }
   }),
