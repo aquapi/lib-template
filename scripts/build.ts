@@ -34,6 +34,7 @@ await Promise.all(
           transformed.code.replace(/const (.*) =/g, (a) => a.replace('const', 'let')),
           {
             compress: false,
+            mangle: false
           },
         )).code,
       );

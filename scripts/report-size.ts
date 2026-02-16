@@ -7,14 +7,14 @@ const arr = await Promise.all(
   [...new Bun.Glob('**/*.js').scanSync(LIB)].map(async (path) => {
     const file = Bun.file(LIB + '/' + path);
     const code = await file.text();
-    const minfiedCode = minify(path, code).code!;
+    const minifiedCode = (await minify(path, code)).code;
 
     return {
       entry: path,
       size: file.size,
-      minified: Buffer.from(minfiedCode).byteLength,
+      minified: Buffer.from(minifiedCode).byteLength,
       gzip: Bun.gzipSync(code).byteLength,
-      minifiedGzip: Bun.gzipSync(minfiedCode).byteLength,
+      minifiedGzip: Bun.gzipSync(minifiedCode).byteLength,
     };
   }),
 );
