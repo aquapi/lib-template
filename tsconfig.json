@@ -19,6 +19,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
+    "allowArbitraryExtensions": true,
     "verbatimModuleSyntax": true,
 
     // Best practices
@@ -29,6 +30,6 @@
 
     // Declaration
     "declaration": true,
-    "noEmit": true
+    "noEmit": true,
   }
 }
