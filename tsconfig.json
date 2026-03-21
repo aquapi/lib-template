@@ -17,7 +17,6 @@
     "module": "Preserve",
     "moduleDetection": "force",
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
@@ -25,17 +24,11 @@
     // Best practices
     "strict": true,
     "skipLibCheck": true,
-    "noUnusedLocals": false,
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
-    "noImplicitThis": true,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": true,
+    "allowUnreachableCode": false,
 
     // Declaration
     "declaration": true,
-    "isolatedDeclarations": true,
-    "emitDeclarationOnly": true
+    "noEmit": true
   }
 }

@@ -1,29 +1,29 @@
 {
   "name": "example",
+  "type": "module",
   "version": "0.0.1",
   "description": "",
   "keywords": [],
-  "repository": {},
   "homepage": "",
   "license": "MIT",
-  "type": "module",
+  "repository": "",
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "oxfmt",
-    "build:test": "bun task build && bun test",
-    "bench:node": "node --import jiti/register --expose-gc --allow-natives-syntax",
+    "build:test": "bun task build && bun test:bun && bun test:node",
+    "test:node": "node --test \"tests/node/**/*.test.ts\"",
+    "test:bun": "bun test tests/bun --only-failures --pass-with-no-tests",
+    "bench:node": "node --expose-gc --allow-natives-syntax",
     "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax"
   },
   "devDependencies": {
+    "@swc/core": "^1.15.18",
     "@types/bun": "^1.3.9",
-    "jiti": "^2.6.1",
+    "@types/node": "^25.5.0",
     "mitata": "^1.0.34",
-    "oxc-minify": "^0.112.0",
     "oxc-transform": "^0.112.0",
     "oxfmt": "^0.32.0",
+    "picocolors": "^1.1.1",
     "typescript": "^5.9.3"
-  },
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ]
+  }
 }

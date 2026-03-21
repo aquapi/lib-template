@@ -1,9 +1,9 @@
-/// <reference types='bun-types' />
-import { existsSync, rmSync } from 'node:fs';
-import { minify } from 'oxc-minify';
-import { transform } from 'oxc-transform';
+import { existsSync, rmSync, readFileSync } from 'node:fs';
+import { minifySync } from '@swc/core';
+import { transformSync } from 'oxc-transform';
 import pkg from '../package.json';
 import { cp, LIB, ROOT, SOURCE } from './utils.ts';
+import { basename, dirname } from 'node:path/posix';
 
 // Remove old content
 if (existsSync(LIB)) rmSync(LIB, { recursive: true });
@@ -11,11 +11,14 @@ if (existsSync(LIB)) rmSync(LIB, { recursive: true });
 // @ts-ignore
 const exports = (pkg.exports = {} as Record<string, string>);
 
-await Promise.all(
-  [...new Bun.Glob('**/*.ts').scanSync(SOURCE)].map(async (path) => {
-    const pathNoExt = path.slice(0, path.lastIndexOf('.') >>> 0);
+for (const path of new Bun.Glob('**/*.ts').scanSync(SOURCE)) {
+  const pathNoExt = path.slice(0, path.lastIndexOf('.') >>> 0);
+  const pathName = basename(pathNoExt);
 
-    const transformed = await transform(path, await Bun.file(`${SOURCE}/${path}`).text(), {
+  const transformed = transformSync(
+    path,
+    readFileSync(`${SOURCE}/${path}`, { encoding: 'utf8' }),
+    {
       sourceType: 'module',
       typescript: {
         rewriteImportExtensions: true,
@@ -24,33 +27,61 @@ await Promise.all(
         },
       },
       lang: 'ts',
-    });
-
-    if (transformed.code !== '')
-      Bun.write(
-        `${LIB}/${pathNoExt}.js`,
-        (await minify(
-          path,
-          transformed.code.replace(/const (.*) =/g, (a) => a.replace('const', 'let')),
-          {
-            compress: false,
-            mangle: false
-          },
-        )).code,
-      );
-
-    if (transformed.declaration) {
-      Bun.write(`${LIB}/${pathNoExt}.d.ts`, transformed.declaration);
-
-      const exportPath = pathNoExt === 'index'
-        ? '.'
-        : './' + (pathNoExt.endsWith('/index') ? pathNoExt.slice(0, -6) : pathNoExt);
-      exports[exportPath] = './' + pathNoExt + (transformed.code === '' ? '.d.ts' : '.js');
     }
-  }),
-);
+  );
 
-pkg.trustedDependencies = pkg.devDependencies = pkg.scripts = undefined as any;
+  const hasCode = transformed.code && transformed.code.trim() !== 'export {};';
+  const hasDecl = transformed.declaration && transformed.declaration.trim() !== 'export {};';
+
+  hasCode &&
+    Bun.write(
+      `${LIB}/${pathNoExt}.js`,
+      minifySync(transformed.code, {
+        compress: {
+          module: true,
+          defaults: false,
+          dead_code: true,
+          const_to_let: true,
+          conditionals: true,
+          booleans: true,
+          drop_debugger: true,
+          evaluate: true,
+          join_vars: true,
+          inline: 3,
+          passes: 3,
+        },
+        mangle: false,
+        module: true,
+      }).code,
+    );
+
+  hasDecl && Bun.write(`${LIB}/${pathNoExt}.d.ts`, transformed.declaration!);
+
+  if (hasCode || hasDecl) {
+    const isRuntimeKey = pathName.startsWith('_');
+
+    const exportPath =
+      pathName === 'index' || isRuntimeKey // Runtime key
+        ? dirname(pathNoExt)
+        : pathNoExt;
+    const sourcePath = './' + pathNoExt + (hasCode ? '.js' : '.d.ts');
+
+    if (isRuntimeKey) {
+      if (typeof exports[exportPath] === 'string') {
+        // @ts-ignore
+        exports[exportPath] = {
+          default: exports[exportPath],
+          [pathName.slice(1)]: sourcePath
+        };
+        console.warn(`Change ${exportPath}/index to ${exportPath}/_default instead!`);
+      } else
+        // @ts-ignore
+        (exports[exportPath] ??= {})[pathName.slice(1)] = sourcePath;
+    } else exports[exportPath] = sourcePath;
+  }
+}
+
+pkg.devDependencies = pkg.scripts = undefined as any;
 
 Bun.write(LIB + '/package.json', JSON.stringify(pkg));
 cp(ROOT, LIB, 'README.md');
