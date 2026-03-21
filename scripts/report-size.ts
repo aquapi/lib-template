@@ -21,6 +21,7 @@ const arr = await Promise.all(
           passes: 5,
         },
         toplevel: true,
+        module: true,
       }).code;
 
       const minifiedSize = Buffer.from(minifiedCode).byteLength;
