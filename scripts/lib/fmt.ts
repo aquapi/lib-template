@@ -14,5 +14,6 @@ export const fmt = {
   success: pc.greenBright,
   error: pc.redBright,
   relativePath: (abs: string) => pc.italic(pc.underline(relative('.', abs))),
+  glob: (pat: string) => `\`${pc.dim(pc.italic(pat))}\``,
   pc,
 };

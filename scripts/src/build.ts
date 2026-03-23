@@ -1,7 +1,7 @@
 import { rmSync, mkdirSync } from 'node:fs';
 
-import { cpSync, scan } from '../lib/fs.ts';
-import { LIB, ROOT, SOURCE } from '../lib/constants.ts';
+import { cpSync } from '../lib/fs.ts';
+import { LIB, ROOT, SOURCE, BUILD_FILES_PATTERN } from '../lib/constants.ts';
 import { buildSourceSync, modifyPackageJson } from '../lib/build.ts';
 
 {
@@ -24,7 +24,8 @@ import { buildSourceSync, modifyPackageJson } from '../lib/build.ts';
       devDependencies: undefined,
       scripts: undefined,
     };
-    for (const path of scan('**/*.ts', SOURCE)) buildSourceSync(path, modifiers.exports);
+    for (const path of new Bun.Glob(BUILD_FILES_PATTERN).scanSync(SOURCE))
+      buildSourceSync(path, modifiers.exports);
     modifyPackageJson(modifiers);
   }
 }

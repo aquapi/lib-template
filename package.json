@@ -10,7 +10,6 @@
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "oxfmt",
-    "dev": "bun task build --watch",
     "bench:node": "node --expose-gc --allow-natives-syntax",
     "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax"
   },

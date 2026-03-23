@@ -8,3 +8,5 @@ export const BENCH = join(ROOT, 'bench');
 export const TESTS = join(ROOT, 'tests');
 export const NODE_MODULES = join(ROOT, 'node_modules');
 export const PACKAGE_JSON = join(ROOT, 'package.json');
+
+export const BUILD_FILES_PATTERN = '**/*.ts';

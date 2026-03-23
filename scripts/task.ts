@@ -1,7 +1,7 @@
 import { fork } from 'node:child_process';
 import { join } from 'node:path';
 
-import { LIB, SCRIPTS, SOURCE, TESTS } from './lib/constants.ts';
+import { BUILD_FILES_PATTERN, LIB, SCRIPTS, SOURCE } from './lib/constants.ts';
 import { fmt } from './lib/fmt.ts';
 
 //
@@ -32,8 +32,17 @@ interface Task {
 //
 const TASKS: Record<string, Task> = {
   build: {
-    description: `Build \`.ts\` files in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
+    description: `Build files matching ${fmt.glob(BUILD_FILES_PATTERN)} in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
     args: {},
+  },
+  test: {
+    description: `Run tests.`,
+    args: {
+      target: {
+        type: 'string[]',
+        description: 'Target tests to run. Run all tests by default.',
+      },
+    },
   },
   dev: {
     description: 'Watch for source file and test changes.',
@@ -53,7 +62,7 @@ const TASKS: Record<string, Task> = {
     args: {
       globs: {
         type: 'string[]',
-        description: `Files to scan in ${fmt.relativePath(LIB)} to include in the build. Defaults to \`**/*.js\`.`,
+        description: `Files to scan in ${fmt.relativePath(LIB)} to include in the build. Defaults to ${fmt.glob('**/*.js')}.`,
       },
     },
   },
@@ -77,7 +86,7 @@ const TASKS: Record<string, Task> = {
 
     for (const entry of entries)
       console.log(
-        `    ${fmt.pc.bold(fmt.pc.gray(entry[0]))}: ${fmt.pc.bold(fmt.pc.yellowBright(entry[1].type))}: ${entry[1].description}`,
+        `    ${fmt.pc.bold(fmt.pc.dim(entry[0]))}: ${fmt.pc.bold(fmt.pc.yellowBright(entry[1].type))}: ${entry[1].description}`,
       );
   };
 
