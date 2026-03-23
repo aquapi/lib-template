@@ -1,10 +1,10 @@
 import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
 
-import pkg from '../package.json';
+import pkg from '../../package.json';
 
-import { cpSync, scanMultiple } from './lib/fs.ts';
-import { LIB, ROOT, SOURCE } from './lib/constants.ts';
-import { buildSync } from './lib/build.ts';
+import { cpSync, scanMultiple } from '../lib/fs.ts';
+import { LIB, ROOT, SOURCE } from '../lib/constants.ts';
+import { buildSync } from '../lib/build.ts';
 
 {
   //

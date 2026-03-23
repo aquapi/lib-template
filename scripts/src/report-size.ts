@@ -3,8 +3,9 @@ import { minifySync, type JsMinifyOptions } from '@swc/core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { LIB } from './lib/constants.ts';
-import { scanMultiple } from './lib/fs.ts';
+import { LIB } from '../lib/constants.ts';
+import { scanMultiple } from '../lib/fs.ts';
+import { fmt } from '../lib/fmt.ts';
 
 const MINIFY_OPTIONS: JsMinifyOptions = {
   mangle: true,
@@ -67,7 +68,7 @@ const MINIFY_OPTIONS: JsMinifyOptions = {
 
       for (const key in cur)
         // @ts-ignore
-        props[key] = Number.isFinite(cur[key]) ? toByte(cur[key]) : cur[key];
+        props[key] = Number.isFinite(cur[key]) ? fmt.byte(cur[key]) : cur[key];
 
       return props;
     });

@@ -15,6 +15,7 @@ interface Task {
     {
       type: Primitive | `${Primitive}[]` | `?${Primitive}` | (string & {});
       description: string;
+      flag?: true;
     }
   >;
 }
@@ -28,7 +29,7 @@ const TASKS: Record<string, Task> = {
     args: {
       globs: {
         type: 'string[]',
-        description: `Files to scan in ${fmt.relativePath(SOURCE)} to include in the build. Defaults to "**/*.ts".`,
+        description: `Files to scan in ${fmt.relativePath(SOURCE)} to include in the build. Defaults to \`**/*.ts\`.`,
       },
     },
   },
@@ -46,27 +47,29 @@ const TASKS: Record<string, Task> = {
     args: {
       globs: {
         type: 'string[]',
-        description: `Files to scan in ${fmt.relativePath(LIB)} to include in the build. Defaults to "**/*.js".`,
+        description: `Files to scan in ${fmt.relativePath(LIB)} to include in the build. Defaults to \`**/*.js\`.`,
       },
     },
   },
   test: {
     description: 'Run tests.',
     args: {
-      '--watch': {
+      watch: {
         type: '?bool',
-        description: 'Watch tests.'
+        description: 'Watch tests.',
+        flag: true,
       },
-      '--target': {
+      target: {
         type: '?string',
-        description: 'Test target. Run all target tests when not specified.'
+        description: 'Test target. Run all target tests when not specified.',
+        flag: true,
       },
       globs: {
         type: 'string[]',
-        description: `Files to test in ${fmt.relativePath(TESTS + '/[target]')}. Defaults to "**/*.test.ts".`,
+        description: `Files to test in ${fmt.relativePath(TESTS + '/[target]')}. Defaults to \`**/*.test.ts\`.`,
       },
-    }
-  }
+    },
+  },
 };
 
 {
@@ -74,16 +77,20 @@ const TASKS: Record<string, Task> = {
     const entries = Object.entries(task.args);
 
     console.log(
-      `  ${fmt.h2(name)} ${entries
-        .map(([k, v]) => fmt.h1(v.type.endsWith('[]') ? `[...${k}]` : `[${k}]`))
+      `\n  ${fmt.pc.bold('bun task')} ${fmt.name(name)} ${entries
+        .map(([k, v]) => {
+          v.type.endsWith('[]') && (k = '...' + k);
+          v.flag && (k = '--' + k);
+          return fmt.pc.bold(`[${k}]`);
+        })
         .join(' ')}: ${task.description}`,
     );
 
-    for (const entry of entries) {
-      console.log(`  * ${fmt.h1(entry[0] + ': ' + entry[1].type)}`);
-      console.log(`  - ${entry[1].description}`);
-    }
-  }
+    for (const entry of entries)
+      console.log(
+        `    ${fmt.pc.bold(fmt.pc.gray(entry[0]))}: ${fmt.pc.bold(fmt.pc.yellowBright(entry[1].type))}: ${entry[1].description}`,
+      );
+  };
 
   //
   // MAIN
@@ -97,29 +104,29 @@ const TASKS: Record<string, Task> = {
           printHelp(askedTask, TASKS[askedTask]);
           process.exit(0);
         } else {
-          console.log('unknown task:', fmt.h2(askedTask));
-          console.log('available tasks:', Object.keys(TASKS).map(fmt.h2).join(', '));
+          console.log('unknown task:', fmt.name(askedTask));
+          console.log('available tasks:', Object.keys(TASKS).map(fmt.name).join(', '));
           process.exit(1);
         }
       }
     }
 
+    // Print all tasks
     printHelp('help', {
       description: 'Print help menu.',
       args: {
         task: {
           type: '?string',
-          description: 'Print help menu of the specified task. Print all tasks by default.'
-        }
-      }
+          description: 'Print help menu of the specified task. Print all tasks by default.',
+        },
+      },
     });
-    for (const name in TASKS)
-      printHelp(name, TASKS[name]);
+    for (const name in TASKS) printHelp(name, TASKS[name]);
 
     process.exit(0);
   }
 
-  fork(join(SCRIPTS, task + '.ts'), process.argv.slice(3), {
+  fork(join(SCRIPTS, 'src', task + '.ts'), process.argv.slice(3), {
     stdio: 'inherit',
   });
 }
