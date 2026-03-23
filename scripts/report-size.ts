@@ -16,6 +16,9 @@ const MINIFY_OPTIONS: JsMinifyOptions = {
 };
 
 {
+  //
+  // MAIN
+  //
   const SORT_SYMBOL = Symbol();
   const arr = scanMultiple(process.argv.length === 2 ? ['**/*.js'] : process.argv.slice(2), LIB)
     // Parse entry infos

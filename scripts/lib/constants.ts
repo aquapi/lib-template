@@ -5,4 +5,5 @@ export const ROOT = resolve(SCRIPTS, '..');
 export const SOURCE = join(ROOT, 'src');
 export const LIB = join(ROOT, 'lib');
 export const BENCH = join(ROOT, 'bench');
+export const TESTS = join(ROOT, 'tests');
 export const NODE_MODULES = join(ROOT, 'node_modules');

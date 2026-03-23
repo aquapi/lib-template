@@ -4,7 +4,6 @@
   "ignorePatterns": [
     // Dev
     "lib/**/*",
-    "scripts/**/*",
     "bench/**/*",
 
     // Other file types

@@ -10,9 +10,15 @@
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "oxfmt",
+
     "build:test": "bun task build && bun test:bun && bun test:node",
+
     "test:node": "node --test \"tests/node/**/*.test.ts\"",
+    "test:watch:node": "node --test --watch \"tests/node/**/*.test.ts\"",
+
     "test:bun": "bun test tests/bun --only-failures --pass-with-no-tests",
+    "test:watch:bun": "bun test tests/bun --only-failures --pass-with-no-tests",
+
     "bench:node": "node --expose-gc --allow-natives-syntax",
     "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax"
   },

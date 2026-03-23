@@ -1,19 +1,19 @@
 import { fork } from 'node:child_process';
 import { join } from 'node:path';
 
-import { LIB, SCRIPTS, SOURCE } from './lib/constants.ts';
+import { LIB, SCRIPTS, SOURCE, TESTS } from './lib/constants.ts';
 import { fmt } from './lib/fmt.ts';
 
 //
 // TYPES
 //
-type Primitive = 'string' | 'number' | 'boolean';
+type Primitive = 'string' | 'number' | 'bool';
 interface Task {
   description: string;
   args: Record<
     string,
     {
-      type: Primitive | `${Primitive}[]` | `?${Primitive}`;
+      type: Primitive | `${Primitive}[]` | `?${Primitive}` | (string & {});
       description: string;
     }
   >;
@@ -50,26 +50,71 @@ const TASKS: Record<string, Task> = {
       },
     },
   },
+  test: {
+    description: 'Run tests.',
+    args: {
+      '--watch': {
+        type: '?bool',
+        description: 'Watch tests.'
+      },
+      '--target': {
+        type: '?string',
+        description: 'Test target. Run all target tests when not specified.'
+      },
+      globs: {
+        type: 'string[]',
+        description: `Files to test in ${fmt.relativePath(TESTS + '/[target]')}. Defaults to "**/*.test.ts".`,
+      },
+    }
+  }
 };
 
 {
+  const printHelp = (name: string, task: Task) => {
+    const entries = Object.entries(task.args);
+
+    console.log(
+      `  ${fmt.h2(name)} ${entries
+        .map(([k, v]) => fmt.h1(v.type.endsWith('[]') ? `[...${k}]` : `[${k}]`))
+        .join(' ')}: ${task.description}`,
+    );
+
+    for (const entry of entries) {
+      console.log(`  * ${fmt.h1(entry[0] + ': ' + entry[1].type)}`);
+      console.log(`  - ${entry[1].description}`);
+    }
+  }
+
   //
   // MAIN
   //
   const task = process.argv[2];
   if (task == null || !(task in TASKS)) {
-    Object.entries(TASKS).forEach(([name, task]) => {
-      const entries = Object.entries(task.args);
+    if (task === 'help') {
+      const askedTask = process.argv[3];
+      if (askedTask != null) {
+        if (askedTask in TASKS) {
+          printHelp(askedTask, TASKS[askedTask]);
+          process.exit(0);
+        } else {
+          console.log('unknown task:', fmt.h2(askedTask));
+          console.log('available tasks:', Object.keys(TASKS).map(fmt.h2).join(', '));
+          process.exit(1);
+        }
+      }
+    }
 
-      console.log(
-        `  ${fmt.h2(name)} ${entries
-          .map(([k, v]) => fmt.h1(v.type.endsWith('[]') ? `[...${k}]` : `[${k}]`))
-          .join(' ')}: ${task.description}`,
-      );
-
-      for (const entry of entries)
-        console.log(`  * ${fmt.h1(entry[0] + ': ' + entry[1].type)}: ${entry[1].description}`);
+    printHelp('help', {
+      description: 'Print help menu.',
+      args: {
+        task: {
+          type: '?string',
+          description: 'Print help menu of the specified task. Print all tasks by default.'
+        }
+      }
     });
+    for (const name in TASKS)
+      printHelp(name, TASKS[name]);
 
     process.exit(0);
   }
