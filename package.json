@@ -25,5 +25,8 @@
     "oxfmt": "^0.32.0",
     "picocolors": "^1.1.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "trustedDependencies": [
+    "@swc/core"
+  ]
 }

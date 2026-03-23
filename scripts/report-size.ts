@@ -1,44 +1,42 @@
-import { minifySync } from '@swc/core';
-import { LIB, toByte } from './utils.ts';
+import { minifySync, type JsMinifyOptions } from '@swc/core';
 
-const SORT_SYMBOL = Symbol();
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const patterns = process.argv.slice(2);
-patterns.length === 0 && patterns.push('**/*.js');
+import { LIB } from './lib/constants.ts';
+import { scanMultiple } from './lib/fs.ts';
 
-const arr = await Promise.all(
-  patterns
-    .reduce((prev, pat) => {
-      prev.push(...new Bun.Glob(pat).scanSync(LIB));
-      return prev;
-    }, [] as string[])
-    .map(async (path) => {
-      const file = Bun.file(LIB + '/' + path);
-      const code = await file.text();
-      const minifiedCode = minifySync(code, {
-        mangle: true,
-        compress: {
-          passes: 5,
-        },
-        toplevel: true,
-        module: true,
-      }).code;
+const MINIFY_OPTIONS: JsMinifyOptions = {
+  mangle: true,
+  compress: {
+    passes: 5,
+  },
+  toplevel: true,
+  module: true,
+};
+
+{
+  const SORT_SYMBOL = Symbol();
+  const arr = scanMultiple(process.argv.length === 2 ? ['**/*.js'] : process.argv.slice(2), LIB)
+    // Parse entry infos
+    .map((path) => {
+      const code = readFileSync(join(LIB, path));
+      const minifiedCode = minifySync(code, MINIFY_OPTIONS).code;
 
       const minifiedSize = Buffer.from(minifiedCode).byteLength;
       return {
         [SORT_SYMBOL]: minifiedSize,
         Entry: path,
-        Size: file.size,
+        Size: code.byteLength,
         Minify: minifiedSize,
         GZIP: Bun.gzipSync(code).byteLength,
         'Minify GZIP': Bun.gzipSync(minifiedCode).byteLength,
       };
-    }),
-);
-
-console.table(
-  arr
+    })
+    .toArray()
+    // Sort
     .sort((a, b) => a[SORT_SYMBOL] - b[SORT_SYMBOL])
+    // Count total
     .reduce(
       (prev, cur) => {
         for (const key in cur)
@@ -60,6 +58,7 @@ console.table(
       ],
     )
     .reverse()
+    // Convert number to byte
     .map((cur) => {
       const props = {};
 
@@ -68,5 +67,7 @@ console.table(
         props[key] = Number.isFinite(cur[key]) ? toByte(cur[key]) : cur[key];
 
       return props;
-    }),
-);
+    });
+
+  console.table(arr);
+}
