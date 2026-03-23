@@ -45,7 +45,7 @@ const TASKS: Record<string, Task> = {
     },
   },
   dev: {
-    description: 'Watch for source file and test changes.',
+    description: 'Watch source files and tests.',
     args: {},
   },
   publish: {
