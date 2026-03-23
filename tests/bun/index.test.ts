@@ -1,10 +1,12 @@
 import { describe, test, expect } from 'bun:test';
 
+import { message } from '#self';
+
 // Describe a group of tests
 describe('Numbers', () => {
   // A single test
   test('Equality', () => {
     // Assert
-    expect(1).toBe(1);
+    expect(message).toBe('Hi');
   });
 });

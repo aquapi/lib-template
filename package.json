@@ -27,5 +27,9 @@
   },
   "trustedDependencies": [
     "@swc/core"
-  ]
+  ],
+  "imports": {
+    "#self/*": "./lib/*",
+    "#self": "./lib/index.js"
+  }
 }
