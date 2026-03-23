@@ -4,7 +4,7 @@ import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { minifySync, type JsMinifyOptions } from '@swc/core';
 import { transformSync, type TransformOptions } from 'oxc-transform';
 
-import { LIB, SOURCE } from './constants.ts';
+import { LIB, PACKAGE_JSON, SOURCE } from './constants.ts';
 import { fmt } from './fmt.ts';
 
 const TRANSFORM_OPTIONS: TransformOptions = {
@@ -136,4 +136,25 @@ export const removeSourceSync = (
       fmt.duration(time),
     );
   }
+};
+
+let cachedPackageJson: any;
+let lastModified = 0;
+
+const LIB_PACKAGE_JSON = join(LIB, 'package.json');
+
+export const modifyPackageJson = (modifiers: Record<string, any>) => {
+  const fileLastModified = Bun.file(PACKAGE_JSON).lastModified;
+  if (!cachedPackageJson || fileLastModified > lastModified) {
+    cachedPackageJson = JSON.parse(readFileSync(PACKAGE_JSON, { encoding: 'utf8' }));
+    lastModified = fileLastModified;
+  }
+
+  writeFileSync(
+    LIB_PACKAGE_JSON,
+    JSON.stringify({
+      ...cachedPackageJson,
+      ...modifiers,
+    }),
+  );
 };

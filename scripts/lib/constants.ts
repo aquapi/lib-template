@@ -7,3 +7,4 @@ export const LIB = join(ROOT, 'lib');
 export const BENCH = join(ROOT, 'bench');
 export const TESTS = join(ROOT, 'tests');
 export const NODE_MODULES = join(ROOT, 'node_modules');
+export const PACKAGE_JSON = join(ROOT, 'package.json');

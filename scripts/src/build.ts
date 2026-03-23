@@ -1,24 +1,10 @@
-import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
-import { parseArgs } from 'node:util';
+import { rmSync, mkdirSync } from 'node:fs';
 
-import { watch } from 'chokidar';
-
-import pkg from '../../package.json';
-
-import { cpSync, scanMultipleGlobs } from '../lib/fs.ts';
+import { cpSync, scan } from '../lib/fs.ts';
 import { LIB, ROOT, SOURCE } from '../lib/constants.ts';
-import { buildSourceSync, removeSourceSync } from '../lib/build.ts';
+import { buildSourceSync, modifyPackageJson } from '../lib/build.ts';
 
 {
-  const { values, positionals } = parseArgs({
-    options: {
-      watch: {
-        type: 'boolean',
-      },
-    },
-    allowPositionals: true,
-  });
-
   //
   // MAIN
   //
@@ -31,51 +17,14 @@ import { buildSourceSync, removeSourceSync } from '../lib/build.ts';
   // } catch {}
   cpSync(ROOT, LIB, 'README.md');
 
-  // Cache the globs for faster search
-  const globs = (positionals.length > 0 ? positionals : ['**/*.ts']).map(
-    (pat) => new Bun.Glob(pat),
-  );
-
   // Build files and add exports to lib/package.json
   {
-    const updatePackage = () => {
-      writeFileSync(LIB + '/package.json', JSON.stringify(pkg));
+    const modifiers = {
+      exports: {},
+      devDependencies: undefined,
+      scripts: undefined,
     };
-
-    // @ts-ignore
-    const exports = (pkg.exports = {} as Record<string, string>);
-    for (const path of scanMultipleGlobs(globs, SOURCE)) buildSourceSync(path, exports);
-    pkg.devDependencies = pkg.scripts = undefined as any;
-    updatePackage();
-
-    // Watch mode
-    values.watch &&
-      watch(SOURCE, {
-        ignored: (path, stats) => {
-          if (stats?.isFile()) {
-            for (let i = 0; i < globs.length; i++) if (globs[i].match(path)) return false;
-            return true;
-          }
-
-          return false;
-        },
-        ignoreInitial: true,
-        cwd: SOURCE,
-        interval: 100,
-      })
-        .on('add', (path) => {
-          buildSourceSync(path, exports);
-          updatePackage();
-        })
-        .on('change', (path) => {
-          buildSourceSync(path, {});
-        })
-        .on('unlink', (path) => {
-          removeSourceSync(path, exports);
-          updatePackage();
-        })
-        .on('error', (e) => {
-          console.error(e);
-        });
+    for (const path of scan('**/*.ts', SOURCE)) buildSourceSync(path, modifiers.exports);
+    modifyPackageJson(modifiers);
   }
 }

@@ -7,13 +7,20 @@ import { fmt } from './lib/fmt.ts';
 //
 // TYPES
 //
-type Primitive = 'string' | 'number' | 'bool';
 interface Task {
   description: string;
   args: Record<
     string,
     {
-      type: Primitive | `${Primitive}[]` | `?${Primitive}` | (string & {});
+      type:
+        | 'string'
+        | 'number'
+        | '?bool'
+        | 'string[]'
+        | 'number[]'
+        | '?string'
+        | '?number'
+        | (string & {});
       description: string;
       flag?: true;
     }
@@ -25,13 +32,12 @@ interface Task {
 //
 const TASKS: Record<string, Task> = {
   build: {
-    description: `Build files in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
-    args: {
-      globs: {
-        type: 'string[]',
-        description: `Files to scan in ${fmt.relativePath(SOURCE)} to include in the build. Defaults to \`**/*.ts\`.`,
-      },
-    },
+    description: `Build \`.ts\` files in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
+    args: {},
+  },
+  dev: {
+    description: 'Watch for source file and test changes.',
+    args: {},
   },
   publish: {
     description: `Publish ${fmt.relativePath(LIB)} to npm.`,
@@ -51,39 +57,22 @@ const TASKS: Record<string, Task> = {
       },
     },
   },
-  test: {
-    description: 'Run tests.',
-    args: {
-      watch: {
-        type: '?bool',
-        description: 'Watch tests.',
-        flag: true,
-      },
-      target: {
-        type: '?string',
-        description: 'Test target. Run all target tests when not specified.',
-        flag: true,
-      },
-      globs: {
-        type: 'string[]',
-        description: `Files to test in ${fmt.relativePath(TESTS + '/[target]')}. Defaults to \`**/*.test.ts\`.`,
-      },
-    },
-  },
 };
 
 {
+  //
+  // MAIN
+  //
   const printHelp = (name: string, task: Task) => {
     const entries = Object.entries(task.args);
 
     console.log(
-      `\n  ${fmt.pc.bold('bun task')} ${fmt.name(name)} ${entries
+      `\n  ${fmt.pc.bold('bun task')} ${fmt.name(name)}${entries
         .map(([k, v]) => {
-          v.type.endsWith('[]') && (k = '...' + k);
-          v.flag && (k = '--' + k);
-          return fmt.pc.bold(`[${k}]`);
+          v.type.endsWith('[]') ? (k = '...' + k) : v.flag && (k = '--' + k);
+          return ' ' + fmt.pc.bold(`[${k}]`);
         })
-        .join(' ')}: ${task.description}`,
+        .join('')}: ${task.description}`,
     );
 
     for (const entry of entries)
@@ -92,9 +81,6 @@ const TASKS: Record<string, Task> = {
       );
   };
 
-  //
-  // MAIN
-  //
   const task = process.argv[2];
   if (task == null || !(task in TASKS)) {
     if (task === 'help') {

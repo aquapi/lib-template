@@ -11,6 +11,10 @@ export const scanMultiple = (patterns: string[], options?: string | Bun.GlobScan
     options,
   );
 
+export function* scan(pattern: string, options?: string | Bun.GlobScanOptions) {
+  yield* new Bun.Glob(pattern).scanSync(options);
+}
+
 export const cpSync = (fromDir: string, toDir: string, file: string) => {
   try {
     symlinkSync(join(fromDir, file), join(toDir, file));
