@@ -1,9 +1,15 @@
 import { symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
-export function* scanMultiple(patterns: string[], options?: string | Bun.GlobScanOptions) {
-  for (let i = 0; i < patterns.length; i++) yield* new Bun.Glob(patterns[i]).scanSync(options);
+export function* scanMultipleGlobs(patterns: Bun.Glob[], options?: string | Bun.GlobScanOptions) {
+  for (let i = 0; i < patterns.length; i++) yield* patterns[i].scanSync(options);
 }
+
+export const scanMultiple = (patterns: string[], options?: string | Bun.GlobScanOptions) =>
+  scanMultipleGlobs(
+    patterns.map((pat) => new Bun.Glob(pat)),
+    options,
+  );
 
 export const cpSync = (fromDir: string, toDir: string, file: string) => {
   try {

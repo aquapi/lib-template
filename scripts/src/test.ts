@@ -60,9 +60,7 @@ const TARGETS: Record<string, Target> = {
 
   // Run all targets
   if (!target) {
-    await Promise.all(
-      Object.values(TARGETS).map((f) => f(patterns, watch))
-    );
+    await Promise.all(Object.values(TARGETS).map((f) => f(patterns, watch)));
     process.exit(0);
   }
 
@@ -73,5 +71,6 @@ const TARGETS: Record<string, Target> = {
     process.exit(1);
   }
 
+  // Run specific target
   await TARGETS[target](patterns, watch);
 }
