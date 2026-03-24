@@ -25,7 +25,7 @@ import { buildSourceSync, modifyPackageJson } from '../lib/build.ts';
       scripts: undefined,
     };
     for (const path of new Bun.Glob(BUILD_FILES_PATTERN).scanSync(SOURCE))
-      buildSourceSync(path, modifiers.exports);
+      buildSourceSync(false, path, modifiers.exports);
     modifyPackageJson(modifiers);
   }
 }

@@ -2,7 +2,7 @@ import { watch } from 'chokidar';
 
 import { SOURCE, BUILD_FILES_PATTERN } from '../lib/constants.ts';
 import { buildSourceSync, modifyPackageJson, removeSourceSync } from '../lib/build.ts';
-import { testBun, testNode } from '../lib/test.ts';
+import { testTargets } from '../lib/test.ts';
 
 {
   //
@@ -22,11 +22,11 @@ import { testBun, testNode } from '../lib/test.ts';
     interval: 100,
   })
     .on('add', (path) => {
-      buildSourceSync(path, modifiers.exports);
+      buildSourceSync(true, path, modifiers.exports);
       modifyPackageJson(modifiers);
     })
     .on('change', (path) => {
-      buildSourceSync(path, {});
+      buildSourceSync(true, path, {});
     })
     .on('unlink', (path) => {
       removeSourceSync(path, modifiers.exports);
@@ -40,5 +40,4 @@ import { testBun, testNode } from '../lib/test.ts';
 //
 // TESTS
 //
-testNode(true);
-testBun(true);
+testTargets(true);

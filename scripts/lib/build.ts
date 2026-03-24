@@ -7,6 +7,9 @@ import { transformSync, type TransformOptions } from 'oxc-transform';
 import { LIB, PACKAGE_JSON, SOURCE } from './constants.ts';
 import { fmt } from './fmt.ts';
 
+//
+// CONFIG
+//
 const TRANSFORM_OPTIONS: TransformOptions = {
   sourceType: 'module',
   typescript: {
@@ -36,7 +39,11 @@ const MINIFY_OPTIONS: JsMinifyOptions = {
   module: true,
 };
 
+//
+// MAIN
+//
 export const buildSourceSync = (
+  dev: boolean,
   pathFromSource: string,
   exports: Record<string, string | Record<string, string>>,
 ) => {
@@ -59,7 +66,7 @@ export const buildSourceSync = (
     hasCode &&
       writeFileSync(
         join(LIB, pathNoExt + '.js'),
-        minifySync(transformed.code, MINIFY_OPTIONS).code,
+        dev ? transformed.code : minifySync(transformed.code, MINIFY_OPTIONS).code,
       );
     hasDecl && writeFileSync(join(LIB, pathNoExt + '.d.ts'), transformed.declaration!);
 
@@ -85,7 +92,7 @@ export const buildSourceSync = (
     }
   } finally {
     time = Bun.nanoseconds() - time;
-    console.log(fmt.success('+ ' + fmt.relativePath(fullPath)) + ':', fmt.duration(time));
+    console.log(fmt.success('+ ' + fmt.relativePath(fullPath)) + ': ' + fmt.duration(time));
   }
 };
 
