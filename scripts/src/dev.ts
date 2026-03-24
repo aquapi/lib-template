@@ -1,8 +1,11 @@
 import { watch } from 'chokidar';
 
-import { SOURCE, BUILD_FILES_PATTERN } from '../lib/constants.ts';
+import { SOURCE } from '../lib/constants.ts';
 import { buildSourceSync, modifyPackageJson, removeSourceSync } from '../lib/build.ts';
-import { testTargets } from '../lib/test.ts';
+import { testTargets } from '../lib/test/index.ts';
+
+import { build as BUILD_CONFIG } from '../config.ts';
+import { toGlobs } from '../lib/fs.ts';
 
 {
   //
@@ -14,10 +17,15 @@ import { testTargets } from '../lib/test.ts';
     scripts: undefined,
   };
 
-  const GLOB = new Bun.Glob(BUILD_FILES_PATTERN);
+  const GLOBS = toGlobs(BUILD_CONFIG.files);
 
   watch('.', {
-    ignored: (path, stats) => !!stats?.isFile() && !GLOB.match(path),
+    ignored: (path, stats) => {
+      if (!stats?.isFile()) return false;
+
+      for (let i = 0; i < GLOBS.length; i++) if (GLOBS[i].match(path)) return false;
+      return true;
+    },
     cwd: SOURCE,
     interval: 100,
   })

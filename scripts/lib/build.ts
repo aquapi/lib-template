@@ -7,37 +7,27 @@ import { transformSync, type TransformOptions } from 'oxc-transform';
 import { LIB, PACKAGE_JSON, SOURCE } from './constants.ts';
 import { fmt } from './fmt.ts';
 
+import { build as CONFIG } from '../config.ts';
+
 //
 // CONFIG
 //
-const TRANSFORM_OPTIONS: TransformOptions = {
-  sourceType: 'module',
-  typescript: {
-    rewriteImportExtensions: true,
-    declaration: {
-      stripInternal: true,
-    },
-  },
-  lang: 'ts',
-};
+export interface Config {
+  /**
+   * Transform options.
+   */
+  transform: TransformOptions;
 
-const MINIFY_OPTIONS: JsMinifyOptions = {
-  compress: {
-    module: true,
-    defaults: false,
-    dead_code: true,
-    const_to_let: true,
-    conditionals: true,
-    booleans: true,
-    drop_debugger: true,
-    evaluate: true,
-    join_vars: true,
-    inline: 3,
-    passes: 3,
-  },
-  mangle: false,
-  module: true,
-};
+  /**
+   * Minify options.
+   */
+  minify: JsMinifyOptions;
+
+  /**
+   * File patterns to build.
+   */
+  files: string[];
+}
 
 //
 // MAIN
@@ -57,7 +47,7 @@ export const buildSourceSync = (
     const transformed = transformSync(
       pathFromSource,
       readFileSync(fullPath, { encoding: 'utf8' }),
-      TRANSFORM_OPTIONS,
+      CONFIG.transform,
     );
 
     const hasCode = transformed.code && transformed.code.trim() !== 'export {};';
@@ -66,7 +56,7 @@ export const buildSourceSync = (
     hasCode &&
       writeFileSync(
         join(LIB, pathNoExt + '.js'),
-        dev ? transformed.code : minifySync(transformed.code, MINIFY_OPTIONS).code,
+        dev ? transformed.code : minifySync(transformed.code, CONFIG.minify).code,
       );
     hasDecl && writeFileSync(join(LIB, pathNoExt + '.d.ts'), transformed.declaration!);
 

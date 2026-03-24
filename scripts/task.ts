@@ -1,8 +1,9 @@
 import { fork } from 'node:child_process';
 import { join } from 'node:path';
 
-import { BUILD_FILES_PATTERN, LIB, SCRIPTS, SOURCE } from './lib/constants.ts';
+import { LIB, SCRIPTS, SOURCE } from './lib/constants.ts';
 import { fmt } from './lib/fmt.ts';
+import { build as BUILD_CONFIG } from './config.ts';
 
 //
 // TYPES
@@ -32,7 +33,7 @@ interface Task {
 //
 const TASKS: Record<string, Task> = {
   build: {
-    description: `Build files matching ${fmt.glob(BUILD_FILES_PATTERN)} in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
+    description: `Build files matching ${BUILD_CONFIG.files.map(fmt.glob).join(', ')} in ${fmt.relativePath(SOURCE)} to ${fmt.relativePath(LIB)}.`,
     args: {},
   },
   test: {
@@ -105,6 +106,8 @@ const TASKS: Record<string, Task> = {
         }
       }
     }
+
+    console.log(`  ${fmt.pc.bold('configurations')}: ${fmt.relativePath(join(SCRIPTS, 'config.ts'))}`);
 
     // Print all tasks
     printHelp('help', {

@@ -1,4 +1,4 @@
-import { testTargets } from '../lib/test.ts';
+import { testTargets } from '../lib/test/index.ts';
 
 {
   //

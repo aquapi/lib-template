@@ -6,10 +6,9 @@ export function* scanMultipleGlobs(patterns: Bun.Glob[], options?: string | Bun.
 }
 
 export const scanMultiple = (patterns: string[], options?: string | Bun.GlobScanOptions) =>
-  scanMultipleGlobs(
-    patterns.map((pat) => new Bun.Glob(pat)),
-    options,
-  );
+  scanMultipleGlobs(toGlobs(patterns), options);
+
+export const toGlobs = (patterns: string[]) => patterns.map((pat) => new Bun.Glob(pat));
 
 export const cpSync = (fromDir: string, toDir: string, file: string) => {
   try {
