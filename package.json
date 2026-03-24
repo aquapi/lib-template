@@ -14,14 +14,14 @@
     "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.18",
+    "@swc/core": "^1.15.21",
     "@types/bun": "^1.3.9",
     "@types/deno": "^2.5.0",
     "@types/node": "^25.5.0",
     "chokidar": "^5.0.0",
     "mitata": "^1.0.34",
-    "oxc-transform": "^0.112.0",
-    "oxfmt": "^0.32.0",
+    "oxc-transform": "^0.121.0",
+    "oxfmt": "^0.41.0",
     "picocolors": "^1.1.1",
     "typescript": "^5.9.3"
   },

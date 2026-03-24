@@ -17,7 +17,7 @@ import { testBun, testNode } from '../lib/test.ts';
   const GLOB = new Bun.Glob(BUILD_FILES_PATTERN);
 
   watch('.', {
-    ignored: (path, stats) => !stats?.isFile() || !GLOB.match(path),
+    ignored: (path, stats) => !!stats?.isFile() && !GLOB.match(path),
     cwd: SOURCE,
     interval: 100,
   })
