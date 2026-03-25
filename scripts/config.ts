@@ -4,8 +4,7 @@ import type { Config as TestConfig } from './lib/test/index.ts';
 export const test: TestConfig = {
   bun: {
     disabled: true,
-    randomize: true,
-    smol: true,
+    args: ['--randomize', '--smol', '--no-clear-screen']
   },
   node: {
     run: {},

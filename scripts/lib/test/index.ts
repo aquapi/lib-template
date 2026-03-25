@@ -17,10 +17,7 @@ interface SpecificConfig {
     run?: Omit<RunOptions, 'watch' | 'cwd'>;
   };
   bun: {
-    smol?: true;
-    clearScreen?: true;
-    randomize?: true;
-    sequential?: true;
+    args?: ('--smol' | '--no-clear-screen' | '--randomize' | '--concurrent' | (string & {}))[],
     dirs?: string[];
   };
 }
@@ -74,11 +71,7 @@ export const testTargets = (watch: boolean, targets: readonly string[] = TARGETS
 
         const args = ['bun', 'test'];
         watch && args.push('--watch');
-
-        config.randomize && args.push('--randomize');
-        config.sequential || args.push('--concurrent');
-        config.smol && args.push('--smol');
-        config.clearScreen || args.push('--no-clear-screen');
+        config.args && args.push(...config.args);
         config.dirs ? args.push(...config.dirs) : args.push(BUN_DIR);
 
         return Bun.spawn(args, {
