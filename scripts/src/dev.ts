@@ -5,7 +5,7 @@ import { buildSourceSync, modifyPackageJson, removeSourceSync } from '../lib/bui
 import { testTargets } from '../lib/test.ts';
 
 import { build as BUILD_CONFIG } from '../config.ts';
-import { toGlobs } from '../lib/fs.ts';
+import { matchesGlobs } from '../lib/fs.ts';
 
 {
   //
@@ -17,15 +17,8 @@ import { toGlobs } from '../lib/fs.ts';
     scripts: undefined,
   };
 
-  const GLOBS = toGlobs(BUILD_CONFIG.files);
-
   watch('.', {
-    ignored: (path, stats) => {
-      if (!stats?.isFile()) return false;
-
-      for (let i = 0; i < GLOBS.length; i++) if (GLOBS[i].match(path)) return false;
-      return true;
-    },
+    ignored: (path, stats) => !!stats?.isFile() && !matchesGlobs(path, BUILD_CONFIG.files),
     cwd: SOURCE,
     interval: 100,
   })

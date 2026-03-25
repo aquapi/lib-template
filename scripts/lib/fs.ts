@@ -1,14 +1,10 @@
 import { symlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, matchesGlob } from 'node:path';
 
-export function* scanMultipleGlobs(patterns: Bun.Glob[], options?: string | Bun.GlobScanOptions) {
-  for (let i = 0; i < patterns.length; i++) yield* patterns[i].scanSync(options);
-}
-
-export const scanMultiple = (patterns: string[], options?: string | Bun.GlobScanOptions) =>
-  scanMultipleGlobs(toGlobs(patterns), options);
-
-export const toGlobs = (patterns: string[]) => patterns.map((pat) => new Bun.Glob(pat));
+export const matchesGlobs = (path: string, patterns: string[]) => {
+  for (let i = 0; i < patterns.length; i++) if (matchesGlob(path, patterns[i])) return true;
+  return false;
+};
 
 export const cpSync = (fromDir: string, toDir: string, file: string) => {
   try {

@@ -1,10 +1,9 @@
 import { minifySync, type JsMinifyOptions } from '@swc/core';
 
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { LIB } from '../lib/constants.ts';
-import { scanMultiple } from '../lib/fs.ts';
 import { fmt } from '../lib/fmt.ts';
 
 const MINIFY_OPTIONS: JsMinifyOptions = {
@@ -21,7 +20,9 @@ const MINIFY_OPTIONS: JsMinifyOptions = {
   // MAIN
   //
   const SORT_SYMBOL = Symbol();
-  const arr = scanMultiple(process.argv.length === 2 ? ['**/*.js'] : process.argv.slice(2), LIB)
+  const arr = globSync(process.argv.length === 2 ? ['**/*.js'] : process.argv.slice(2), {
+    cwd: LIB,
+  })
     // Parse entry infos
     .map((path) => {
       const code = readFileSync(join(LIB, path));
@@ -37,7 +38,6 @@ const MINIFY_OPTIONS: JsMinifyOptions = {
         'Minify GZIP': Bun.gzipSync(minifiedCode).byteLength,
       };
     })
-    .toArray()
     // Sort
     .sort((a, b) => a[SORT_SYMBOL] - b[SORT_SYMBOL])
     // Count total

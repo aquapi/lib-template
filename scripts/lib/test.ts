@@ -14,7 +14,7 @@ const TARGETS = ['node', 'bun'] as const;
 interface SpecificConfig {
   node: {
     args?: {
-      'test-isolation'?: true;
+      'test-isolation'?: 'none';
     } & Record<string, string | true>;
     isolation?: true;
     files?: string[];
@@ -23,8 +23,8 @@ interface SpecificConfig {
     args?: {
       smol?: true;
       'no-clear-screen'?: true;
-      randomize: true;
-      concurrent: true;
+      randomize?: true;
+      concurrent?: true;
     } & Record<string, string | true>;
     dirs?: string[];
   };
