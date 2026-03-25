@@ -107,7 +107,9 @@ const TASKS: Record<string, Task> = {
       }
     }
 
-    console.log(`  ${fmt.pc.bold('configurations')}: ${fmt.relativePath(join(SCRIPTS, 'config.ts'))}`);
+    console.log(
+      `  ${fmt.pc.bold('configurations')}: ${fmt.relativePath(join(SCRIPTS, 'config.ts'))}`,
+    );
 
     // Print all tasks
     printHelp('help', {

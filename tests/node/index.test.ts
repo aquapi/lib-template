@@ -1,12 +1,12 @@
-import { test } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
 import { message } from '#self';
 
 // Describe a group of tests
-test('Numbers', (t) => {
+describe('Exports', () => {
   // A single test
-  t.test('Equality', () => {
+  it('Equality', () => {
     // Assert
     assert.strictEqual(message, 'Hi');
   });

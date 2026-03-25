@@ -4,12 +4,13 @@
   "ignorePatterns": [
     // Dev
     "lib/**/*",
+    "scripts/**/*",
     "bench/**/*",
 
     // Other file types
     "**/*.json",
     "**/*.jsonc",
     "**/*.md",
-    "**/bun.lock"
-  ]
+    "**/bun.lock",
+  ],
 }

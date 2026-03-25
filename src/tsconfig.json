@@ -15,5 +15,8 @@
     // Isolated declarations
     "isolatedDeclarations": true,
     "isolatedModules": true,
+
+    // Paths
+    "paths": {}
   }
 }

@@ -1,10 +1,9 @@
 import { join } from 'node:path';
-import { run, type RunOptions } from 'node:test';
 
-import { TESTS } from '../constants.ts';
-import { fmt } from '../fmt.ts';
+import { TESTS } from './constants.ts';
+import { fmt } from './fmt.ts';
 
-import { test as CONFIG } from '../../config.ts';
+import { test as CONFIG } from '../config.ts';
 
 //
 // CONFIG
@@ -14,10 +13,19 @@ const TARGETS = ['node', 'bun'] as const;
 // Specific target options
 interface SpecificConfig {
   node: {
-    run?: Omit<RunOptions, 'watch' | 'cwd'>;
+    args?: {
+      'test-isolation'?: true;
+    } & Record<string, string | true>;
+    isolation?: true;
+    files?: string[];
   };
   bun: {
-    args?: ('--smol' | '--no-clear-screen' | '--randomize' | '--concurrent' | (string & {}))[],
+    args?: {
+      smol?: true;
+      'no-clear-screen'?: true;
+      randomize: true;
+      concurrent: true;
+    } & Record<string, string | true>;
     dirs?: string[];
   };
 }
@@ -30,8 +38,9 @@ export type Config = {
 //
 // MAIN
 //
-const NODE_RUNNER = join(import.meta.dir, 'node-runner.ts');
 const NODE_DIR = join(TESTS, 'node');
+const NODE_DEFAULT_PATTERNS = ['**/*.test.ts', '**/*_test.ts', '**/*.spec.ts', '**/*_spec.ts'];
+
 const BUN_DIR = join(TESTS, 'bun');
 
 export const testTargets = (watch: boolean, targets: readonly string[] = TARGETS) =>
@@ -56,8 +65,16 @@ export const testTargets = (watch: boolean, targets: readonly string[] = TARGETS
 
       // Specific targets
       if (target === 'node') {
-        const args = ['node', NODE_RUNNER];
+        const config = genericConfig as Config['node'];
+
+        const args = ['node', '--test'];
         watch && args.push('--watch');
+        config.args &&
+          Object.entries(config.args).forEach(([k, v]) => {
+            args.push('--' + k);
+            v && v !== true && args.push(v);
+          });
+        args.push(...(config.files ?? NODE_DEFAULT_PATTERNS));
 
         return Bun.spawn(args, {
           cwd: NODE_DIR,
@@ -71,7 +88,11 @@ export const testTargets = (watch: boolean, targets: readonly string[] = TARGETS
 
         const args = ['bun', 'test'];
         watch && args.push('--watch');
-        config.args && args.push(...config.args);
+        config.args &&
+          Object.entries(config.args).forEach(([k, v]) => {
+            args.push('--' + k);
+            v && v !== true && args.push(v);
+          });
         config.dirs ? args.push(...config.dirs) : args.push(BUN_DIR);
 
         return Bun.spawn(args, {

@@ -2,7 +2,7 @@ import { watch } from 'chokidar';
 
 import { SOURCE } from '../lib/constants.ts';
 import { buildSourceSync, modifyPackageJson, removeSourceSync } from '../lib/build.ts';
-import { testTargets } from '../lib/test/index.ts';
+import { testTargets } from '../lib/test.ts';
 
 import { build as BUILD_CONFIG } from '../config.ts';
 import { toGlobs } from '../lib/fs.ts';

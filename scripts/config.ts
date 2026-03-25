@@ -1,17 +1,19 @@
-import type { Config as BuildConfig } from './lib/build.ts';
-import type { Config as TestConfig } from './lib/test/index.ts';
-
-export const test: TestConfig = {
+export const test: import('./lib/test.ts').Config = {
   bun: {
-    disabled: true,
-    args: ['--randomize', '--smol', '--no-clear-screen']
+    args: {
+      randomize: true,
+      smol: true,
+      'no-clear-screen': true,
+    },
   },
   node: {
-    run: {},
+    args: {
+      'test-isolation': 'none',
+    },
   },
 };
 
-export const build: BuildConfig = {
+export const build: import('./lib/build.ts').Config = {
   transform: {
     sourceType: 'module',
     typescript: {

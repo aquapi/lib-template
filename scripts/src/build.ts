@@ -1,7 +1,7 @@
 import { rmSync, mkdirSync } from 'node:fs';
 
 import { cpSync, scanMultiple } from '../lib/fs.ts';
-import { LIB, ROOT } from '../lib/constants.ts';
+import { LIB, ROOT, SOURCE } from '../lib/constants.ts';
 import { buildSourceSync, modifyPackageJson } from '../lib/build.ts';
 import { build as CONFIG } from '../config.ts';
 
@@ -24,8 +24,10 @@ import { build as CONFIG } from '../config.ts';
       exports: {},
       devDependencies: undefined,
       scripts: undefined,
+      imports: undefined,
     };
-    for (const path of scanMultiple(CONFIG.files)) buildSourceSync(false, path, modifiers.exports);
+    for (const path of scanMultiple(CONFIG.files, SOURCE))
+      buildSourceSync(false, path, modifiers.exports);
     modifyPackageJson(modifiers);
   }
 }
