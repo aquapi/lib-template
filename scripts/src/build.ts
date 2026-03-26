@@ -19,7 +19,7 @@ for (const path of globSync(CONFIG.symlinks, {
   linkSync(path);
 
 // Build files and add exports to lib/package.json
-export const modifiers = {
+const modifiers = {
   exports: {},
   devDependencies: undefined,
   scripts: undefined,

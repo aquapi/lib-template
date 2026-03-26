@@ -5,7 +5,7 @@ import {
   writeFileSync,
   symlinkSync,
   unlinkSync as fsUnlinkSync,
-  existsSync,
+  mkdirSync,
 } from 'node:fs';
 
 import { minifySync, type JsMinifyOptions } from '@swc/core';
@@ -55,6 +55,7 @@ export const buildSourceSync = (
   try {
     const pathNoExt = pathFromSource.slice(0, pathFromSource.lastIndexOf('.') >>> 0);
     const pathName = basename(pathNoExt);
+    const pathDir = dirname(pathNoExt);
 
     const transformed = transformSync(
       pathFromSource,
@@ -65,12 +66,17 @@ export const buildSourceSync = (
     const hasCode = transformed.code && transformed.code.trim() !== 'export {};';
     const hasDecl = transformed.declaration && transformed.declaration.trim() !== 'export {};';
 
-    hasCode &&
+    // Faster than trying a syscall and fail
+    try {
+      mkdirSync(pathDir, { recursive: true });
+    } catch {}
+
+    (dev || hasCode) &&
       writeFileSync(
         join(LIB, pathNoExt + '.js'),
         dev ? transformed.code : minifySync(transformed.code, CONFIG.minify).code,
       );
-    hasDecl && writeFileSync(join(LIB, pathNoExt + '.d.ts'), transformed.declaration!);
+    (dev || hasDecl) && writeFileSync(join(LIB, pathNoExt + '.d.ts'), transformed.declaration!);
 
     if (hasCode || hasDecl) {
       const isRuntimeKey = pathName.startsWith('_');
@@ -108,7 +114,14 @@ export const linkSync = (file: string) => {
   const toFile = join(LIB, file);
 
   let time = Bun.nanoseconds();
-  symlinkSync(fromFile, toFile);
+  try {
+    symlinkSync(fromFile, toFile);
+  } catch (e) {
+    if ((e as ErrnoException).code !== 'EEXIST') {
+      console.error(e);
+      process.exit(1);
+    }
+  }
   time = Bun.nanoseconds() - time;
 
   console.log(
