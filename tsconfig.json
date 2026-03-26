@@ -30,12 +30,6 @@
 
     // Declaration
     "declaration": true,
-    "noEmit": true,
-
-    // Imports
-    "paths": {
-      "#self/*": ["./lib/*"],
-      "#self": ["./lib"]
-    }
+    "noEmit": true
   }
 }

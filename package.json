@@ -27,7 +27,7 @@
     "oxc-transform": "^0.121.0",
     "oxfmt": "^0.41.0",
     "picocolors": "^1.1.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   },
   "trustedDependencies": [
     "@swc/core"
