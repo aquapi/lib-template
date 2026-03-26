@@ -1,10 +1,17 @@
 import { basename, dirname, join } from 'node:path';
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  symlinkSync,
+  unlinkSync as fsUnlinkSync,
+  existsSync,
+} from 'node:fs';
 
 import { minifySync, type JsMinifyOptions } from '@swc/core';
 import { transformSync, type TransformOptions } from 'oxc-transform';
 
-import { LIB, PACKAGE_JSON, SOURCE } from './constants.ts';
+import { LIB, PACKAGE_JSON, ROOT, SOURCE } from './constants.ts';
 import { fmt } from './fmt.ts';
 
 import { build as CONFIG } from '../config.ts';
@@ -27,6 +34,11 @@ export interface Config {
    * File patterns to build.
    */
   files: string[];
+
+  /**
+   * File patterns to symlink.
+   */
+  symlinks: string[];
 }
 
 //
@@ -84,6 +96,41 @@ export const buildSourceSync = (
     time = Bun.nanoseconds() - time;
     console.log(fmt.success('+ ' + fmt.relativePath(fullPath)) + ': ' + fmt.duration(time));
   }
+};
+
+export const linkSync = (file: string) => {
+  if (file.includes('/')) {
+    console.log(fmt.warn('~ ignored: ' + fmt.relativePath(file)));
+    return;
+  }
+
+  const fromFile = join(ROOT, file);
+  const toFile = join(LIB, file);
+
+  let time = Bun.nanoseconds();
+  symlinkSync(fromFile, toFile);
+  time = Bun.nanoseconds() - time;
+
+  console.log(
+    fmt.success(`+ ${fmt.relativePath(toFile)} <-- ${fmt.relativePath(fromFile)}`) +
+      ': ' +
+      fmt.duration(time),
+  );
+};
+
+export const unlinkSync = (file: string) => {
+  const fromFile = join(ROOT, file);
+  const toFile = join(LIB, file);
+
+  let time = Bun.nanoseconds();
+  fsUnlinkSync(toFile);
+  time = Bun.nanoseconds() - time;
+
+  console.log(
+    fmt.error(`- ${fmt.relativePath(fromFile)} -> ${fmt.relativePath(toFile)}`) +
+      ': ' +
+      fmt.duration(time),
+  );
 };
 
 export const removeSourceSync = (

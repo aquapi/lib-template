@@ -14,6 +14,9 @@ export const test: import('./lib/test.ts').Config = {
 };
 
 export const build: import('./lib/build.ts').Config = {
+  files: ['**/*.ts'],
+  symlinks: ['README.md'],
+
   transform: {
     sourceType: 'module',
     typescript: {
@@ -41,5 +44,4 @@ export const build: import('./lib/build.ts').Config = {
     mangle: false,
     module: true,
   },
-  files: ['**/*.ts'],
 };
