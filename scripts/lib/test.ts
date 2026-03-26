@@ -14,9 +14,8 @@ const TARGETS = ['node', 'bun'] as const;
 interface SpecificConfig {
   node: {
     args?: {
-      'test-isolation'?: 'none';
+      'test-isolation'?: 'none' | (string & {});
     } & Record<string, string | true>;
-    isolation?: true;
     files?: string[];
   };
   bun: {

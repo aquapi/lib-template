@@ -6,6 +6,7 @@ export const test: import('./lib/test.ts').Config = {
       'no-clear-screen': true,
     },
   },
+
   node: {
     args: {
       'test-isolation': 'none',
@@ -15,7 +16,7 @@ export const test: import('./lib/test.ts').Config = {
 
 export const build: import('./lib/build.ts').Config = {
   files: ['**/*.ts'],
-  symlinks: ['README.md'],
+  symlinks: ['README.md', 'LICENSE'],
 
   transform: {
     sourceType: 'module',
