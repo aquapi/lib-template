@@ -68,7 +68,7 @@ export const buildSourceSync = (
 
     // Faster than trying a syscall and fail
     try {
-      mkdirSync(pathDir, { recursive: true });
+      mkdirSync(join(LIB, pathDir), { recursive: true });
     } catch {}
 
     (dev || hasCode) &&
