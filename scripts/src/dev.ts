@@ -6,7 +6,6 @@ import {
   linkSync,
   updatePackageJson,
   removeSourceSync,
-  LIB_PKG,
   initLib,
 } from '../lib/build.ts';
 import { testTargets } from '../lib/test.ts';
@@ -30,7 +29,7 @@ for (const path of globSync(BUILD_CONFIG.symlinks, {
 for (const path of globSync(BUILD_CONFIG.files, {
   cwd: SOURCE,
 }))
-  buildSourceSync(true, path, LIB_PKG.exports);
+  buildSourceSync(true, false, path);
 updatePackageJson();
 
 watch('.', {
@@ -40,14 +39,14 @@ watch('.', {
   ignoreInitial: true,
 })
   .on('add', (path) => {
-    buildSourceSync(true, path, LIB_PKG.exports);
+    buildSourceSync(true, true, path);
     updatePackageJson();
   })
   .on('change', (path) => {
-    buildSourceSync(true, path, {});
+    buildSourceSync(true, false, path);
   })
   .on('unlink', (path) => {
-    removeSourceSync(path, LIB_PKG.exports);
+    removeSourceSync(path);
     updatePackageJson();
   })
   .on('error', (e) => {
