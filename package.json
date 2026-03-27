@@ -7,10 +7,6 @@
   "license": "MIT",
   "repository": "",
   "type": "module",
-  "imports": {
-    "#self/*": "./lib/*.js",
-    "#self": "./lib/index.js"
-  },
   "scripts": {
     "task": "bun scripts/task.ts",
     "fmt": "oxfmt",
