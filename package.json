@@ -8,7 +8,7 @@
   "repository": "",
   "type": "module",
   "imports": {
-    "#self/*": "./lib/*",
+    "#self/*": "./lib/*.js",
     "#self": "./lib/index.js"
   },
   "scripts": {
