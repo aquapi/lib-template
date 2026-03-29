@@ -1,4 +1,4 @@
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, sep } from 'node:path';
 import {
   readFileSync,
   rmSync,
@@ -111,7 +111,7 @@ export const linkSync = (file: string) => {
   const fromFile = join(ROOT, file);
   const toFile = join(LIB, file);
 
-  if (file.includes('/'))
+  if (file.includes(sep))
     try {
       mkdirSync(dirname(toFile), { recursive: true });
     } catch {}
