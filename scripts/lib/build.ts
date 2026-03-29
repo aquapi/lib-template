@@ -3,7 +3,6 @@ import {
   readFileSync,
   rmSync,
   writeFileSync,
-  symlinkSync,
   unlinkSync as fsUnlinkSync,
   mkdirSync,
 } from 'node:fs';
