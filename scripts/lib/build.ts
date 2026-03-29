@@ -118,7 +118,7 @@ export const linkSync = (file: string) => {
 
   let time = Bun.nanoseconds();
   try {
-    symlinkSync(fromFile, toFile);
+    writeFileSync(toFile, readFileSync(fromFile));
   } catch (e) {
     if ((e as ErrnoException).code !== 'EEXIST') {
       console.error(e);
