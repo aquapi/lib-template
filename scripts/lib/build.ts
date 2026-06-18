@@ -12,7 +12,7 @@ import { transformSync, type TransformOptions } from 'oxc-transform';
 
 import pkg from '../../package.json';
 
-import { LIB, NODE_MODULES, ROOT, SOURCE } from './constants.ts';
+import { LIB, ROOT, SOURCE } from './constants.ts';
 import { fmt } from './fmt.ts';
 
 import { build as CONFIG } from '../config.ts';
@@ -48,10 +48,11 @@ export interface Config {
 // MAIN
 //
 export const buildSourceSync = (dev: boolean, autoUpdatePkg: boolean, pathFromSource: string) => {
-  let time = Bun.nanoseconds();
-
   const fullPath = join(SOURCE, pathFromSource);
-  try {
+  const outputPaths = [];
+
+  let time = Bun.nanoseconds();
+  {
     const pathNoExt = pathFromSource.slice(0, pathFromSource.lastIndexOf('.') >>> 0);
     const pathDir = dirname(pathNoExt);
 
@@ -64,17 +65,9 @@ export const buildSourceSync = (dev: boolean, autoUpdatePkg: boolean, pathFromSo
     const hasCode = transformed.code && transformed.code.trim() !== 'export {};';
     const hasDecl = transformed.declaration && transformed.declaration.trim() !== 'export {};';
 
-    // Faster than trying a syscall and fail
     try {
       mkdirSync(join(LIB, pathDir), { recursive: true });
     } catch {}
-
-    (dev || hasCode) &&
-      writeFileSync(
-        join(LIB, pathNoExt + '.js'),
-        dev ? transformed.code : minifySync(transformed.code, CONFIG.minify).code,
-      );
-    (dev || hasDecl) && writeFileSync(join(LIB, pathNoExt + '.d.ts'), transformed.declaration!);
 
     if (hasCode || hasDecl) {
       const pathName = basename(pathNoExt);
@@ -100,10 +93,36 @@ export const buildSourceSync = (dev: boolean, autoUpdatePkg: boolean, pathFromSo
         autoUpdatePkg && updatePackageJson();
       }
     }
-  } finally {
-    time = Bun.nanoseconds() - time;
-    console.log(fmt.success('+ ' + fmt.relativePath(fullPath)) + ': ' + fmt.duration(time));
+
+    // Create output files
+    if (dev || hasCode) {
+      const path = join(LIB, pathNoExt + '.js');
+      outputPaths.push(path);
+
+      writeFileSync(
+        path,
+        dev ? transformed.code : minifySync(transformed.code, CONFIG.minify).code,
+      );
+    }
+
+    if (dev || hasDecl) {
+      const path = join(LIB, pathNoExt + '.d.ts');
+      outputPaths.push(path);
+
+      writeFileSync(path, transformed.declaration!);
+    }
   }
+
+  time = Bun.nanoseconds() - time;
+  console.log(
+    fmt.success(
+      '+ ' +
+        (outputPaths.length > 0 ? outputPaths.map(fmt.relativePath).join(', ') + ' <-- ' : '') +
+        fmt.relativePath(fullPath),
+    ) +
+      ': ' +
+      fmt.duration(time),
+  );
 };
 
 export const linkSync = (file: string) => {
@@ -214,7 +233,7 @@ export const updatePackageJson = () => {
   writeFileSync(LIB_PACKAGE_JSON, JSON.stringify(LIB_PKG));
 };
 
-export const initLib = () => {
+export const createLibDir = () => {
   try {
     rmSync(LIB, { recursive: true });
   } catch {}

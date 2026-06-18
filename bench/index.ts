@@ -1,10 +1,12 @@
-import { summary, run, bench } from 'mitata';
+import { bench, env } from 'measure-loop/runner';
+import run from './run.ts';
 
-// Example benchmark
-summary(() => {
-  bench('Date.now()', () => Date.now());
-  bench('performance.now()', () => performance.now());
-});
-
-// Start the benchmark
-run();
+export default run(
+  bench({
+    warmupIters: 32,
+    iters: 128,
+  })
+    .it('env.hrtime()', [], env.hrtime)
+    .it('performance.now()', [], performance.now.bind(performance))
+    .it('Date.now()', [], Date.now)
+);

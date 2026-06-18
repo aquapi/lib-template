@@ -14,16 +14,16 @@
     "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.21",
-    "@types/bun": "^1.3.9",
-    "@types/deno": "^2.5.0",
-    "@types/node": "^25.5.0",
+    "@swc/core": "^1.15.41",
+    "@types/bun": "^1.3.14",
+    "@types/deno": "^2.7.0",
+    "@types/node": "^25.9.3",
     "chokidar": "^5.0.0",
-    "mitata": "^1.0.34",
-    "oxc-transform": "^0.121.0",
-    "oxfmt": "^0.41.0",
+    "measure-loop": "^0.3.8",
+    "oxc-transform": "^0.137.0",
+    "oxfmt": "^0.55.0",
     "picocolors": "^1.1.1",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "trustedDependencies": [
     "@swc/core"

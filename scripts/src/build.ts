@@ -1,14 +1,14 @@
 import { globSync } from 'node:fs';
 
 import { ROOT, SOURCE } from '../lib/constants.ts';
-import { buildSourceSync, linkSync, updatePackageJson, initLib } from '../lib/build.ts';
+import { buildSourceSync, linkSync, updatePackageJson, createLibDir } from '../lib/build.ts';
 
 import { build as CONFIG } from '../config.ts';
 
 //
 // MAIN
 //
-initLib();
+createLibDir();
 
 // Link files
 for (const path of globSync(CONFIG.symlinks, {

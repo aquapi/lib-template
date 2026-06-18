@@ -91,7 +91,13 @@ export interface Config {
     process.exit(0);
   }
 
-  fork(join(SCRIPTS, 'src', task + '.ts'), process.argv.slice(3), {
-    stdio: 'inherit',
-  });
+  Bun.gc(true);
+  Bun.spawnSync(
+    [process.execPath, join(SCRIPTS, 'src', task + '.ts')].concat(process.argv.slice(3)),
+    {
+      stdin: 'inherit',
+      stdout: 'inherit',
+      stderr: 'inherit',
+    },
+  );
 }

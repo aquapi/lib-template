@@ -6,7 +6,7 @@ import {
   linkSync,
   updatePackageJson,
   removeSourceSync,
-  initLib,
+  createLibDir,
 } from '../lib/build.ts';
 import { testTargets } from '../lib/test.ts';
 import { matchesGlobs } from '../lib/fs.ts';
@@ -17,7 +17,7 @@ import { globSync } from 'node:fs';
 //
 // BUILD
 //
-initLib();
+createLibDir();
 
 // Link files
 for (const path of globSync(BUILD_CONFIG.symlinks, {

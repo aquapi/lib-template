@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
-import { message } from '$';
+import { message } from 'example';
 
 // Describe a group of tests
 describe('Exports', () => {

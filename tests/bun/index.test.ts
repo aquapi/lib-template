@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
 
-import { message } from '$';
+import { message } from 'example';
 
 // Describe a group of tests
 describe('Exports', () => {
