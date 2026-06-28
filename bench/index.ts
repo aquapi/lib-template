@@ -1,7 +1,8 @@
-import { bench, env } from 'measure-loop/runner';
+import { bench, env } from 'measure-loop';
 import run from './run.ts';
 
 export default run(
+  import.meta,
   bench({
     warmupIters: 32,
     iters: 128,

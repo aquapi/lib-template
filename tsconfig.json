@@ -2,14 +2,15 @@
   "compilerOptions": {
     // Enable latest features
     "lib": [
-      "ESNext.AsyncIterable",
       "ESNext",
+      "ES2015.Iterable",
+      "ESNext.AsyncIterable",
       "DOM",
       "DOM.Iterable",
       "DOM.AsyncIterable",
       "WebWorker.ImportScripts",
       "Webworker.Iterable",
-      "WebWorker.AsyncIterable"
+      "WebWorker.AsyncIterable",
     ],
     "target": "ESNext",
 

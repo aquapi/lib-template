@@ -1,10 +1,9 @@
-import type { Bench } from "measure-loop/runner/bench";
-import type { Category } from "measure-loop/runner/category";
+import type { Runnable } from "measure-loop/api/types";
 
 import reporter from 'measure-loop/reporter';
-import { env } from 'measure-loop/runner';
+import { env } from 'measure-loop';
 
-export default <T extends Bench | Category>(b: T): T => {
-  import.meta.main && b.run({ env, reporter });
+export default <T extends Runnable>(meta: ImportMeta, b: T): T => {
+  meta.main && b.run({ env, reporter });
   return b;
 }
