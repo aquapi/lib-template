@@ -1,4 +1,4 @@
-import { BENCH, LIB, SOURCE } from './lib/constants.ts';
+import { LIB, SOURCE } from './lib/constants.ts';
 import { fmt } from './lib/fmt.ts';
 
 export const test: import('./lib/test.ts').Config = {

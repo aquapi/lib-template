@@ -1,4 +1,3 @@
-import { fork } from 'node:child_process';
 import { join } from 'node:path';
 
 import { SCRIPTS } from './lib/constants.ts';
