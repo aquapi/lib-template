@@ -1,4 +1,4 @@
-const escape = (v: string) => /^[A-Za-z0-9]+$/.test(v) ? v : JSON.stringify(v);
+const escape = (v: string) => (/^[A-Za-z0-9]+$/.test(v) ? v : JSON.stringify(v));
 
 const sh = (strings: TemplateStringsArray, ...args: (string | number)[]) => {
   let cmd = '';
