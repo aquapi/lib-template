@@ -1,5 +1,6 @@
-# Packages
-/node_modules
+# packages
+node_modules
+/dist
 
-# Benchmark outfile
-/bench/_.js
+# darwin
+.DS_Store

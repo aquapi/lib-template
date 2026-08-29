@@ -9,5 +9,5 @@ export default run(
   })
     .it('env.hrtime()', [], env.hrtime)
     .it('performance.now()', [], performance.now.bind(performance))
-    .it('Date.now()', [], Date.now)
+    .it('Date.now()', [], Date.now),
 );
