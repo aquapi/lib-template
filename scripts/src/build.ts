@@ -152,6 +152,8 @@ else {
     delete pkg.devDependencies;
     // @ts-ignore
     delete pkg.trustedDependencies;
+    // @ts-ignore
+    delete pkg.packageManager;
 
     {
       let keyCount = 0,
