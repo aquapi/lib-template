@@ -8,13 +8,11 @@
   "repository": "",
   "scripts": {
     "fmt": "oxfmt",
-    "bench:node": "node --expose-gc --allow-natives-syntax",
-    "bench:deno": "deno run --allow-all --v8-flags=--expose-gc,--allow-natives-syntax",
-    "build": "node \"scripts/src/build.ts\"",
-    "pkg-stats": "node \"scripts/src/pkg-stats.ts\"",
-    "publish": "node \"scripts/src/publish.ts\"",
-    "push-release": "node \"scripts/src/push-release.ts\"",
-    "setup": "node \"scripts/src/setup.ts\""
+    "setup": "node scripts/src/setup.ts",
+    "build": "node scripts/src/build.ts",
+    "pkg-stats": "node scripts/src/pkg-stats.ts",
+    "publish": "node scripts/src/publish.ts",
+    "push-release": "node scripts/src/push-release.ts"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",
@@ -23,7 +21,6 @@
     "oxc-transform": "^0.147.0",
     "oxfmt": "^0.65.0",
     "picocolors": "^1.1.1",
-    "rolldown": "^1.2.6",
     "typescript": "^7.0.2"
   },
   "sideEffects": false

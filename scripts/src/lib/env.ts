@@ -9,10 +9,11 @@ export const escapeValue = JSON.stringify;
 
 // Runtimes
 export interface RuntimeConfig {
-  run(file: string): string;
+  run(file: string): string[];
 }
 
 // Package managers
 export interface PackageManagerConfig {
-  publish(dir: string): string;
+  init(): string[];
+  publish(dir: string): string[];
 }

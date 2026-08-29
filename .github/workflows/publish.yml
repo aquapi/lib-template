@@ -18,16 +18,18 @@ jobs:
       # Setup node
       - uses: actions/setup-node@v4
         with:
-          version: '24'
           registry-url: 'https://registry.npmjs.org'
+
+      # Setup
+      - name: Setup package
+        run: |
+          node --run setup
 
       # Build
       - name: Build
         run: |
-          npm i
           node --run build
 
       # Publish
       - name: Publish
         run: node --run publish
-        working-directory: target/build

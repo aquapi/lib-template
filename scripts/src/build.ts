@@ -1,8 +1,6 @@
 import pkg from '../../package.json' with { type: 'json' };
 
-import { transformSync } from 'oxc-transform';
-
-import path from 'node:path';
+import path from 'node:path/posix';
 import { existsSync, globSync, mkdirSync, writeFileSync } from 'node:fs';
 import { readFile, writeFile, link } from 'node:fs/promises';
 
@@ -10,8 +8,9 @@ import { measureAsyncTask, measureSyncTask } from './lib/tasks.ts';
 
 import buildConfig from '../config/build.ts';
 
-if (process.argv[2] === 'help') console.info('Build package to', buildConfig.output);
-else {
+if (process.argv[2] === 'help') {
+  console.info('Build package to', buildConfig.output);
+} else {
   // Create output directory
   mkdirSync(buildConfig.output, { recursive: true });
 
@@ -77,10 +76,9 @@ else {
             return measureAsyncTask(`transform ./src/${filePath}`, async () => {
               const pathWithoutExt = filePath.slice(0, filePath.length - ext.length);
 
-              const transformed = transformSync(
+              const transformed = await buildConfig.transform(
                 filePath,
                 await readFile('src/' + filePath, { encoding: 'utf8' }),
-                buildConfig.transform,
               );
 
               // Whether the code is not empty

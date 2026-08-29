@@ -1,14 +1,15 @@
 import { globSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
+import path from 'node:path/posix';
 
 import { minifySync } from 'oxc-minify';
 
 import buildConfig from '../config/build.ts';
-import path from 'node:path';
 
-if (process.argv[2] === 'help') console.info('Print built package status');
-else {
+if (process.argv[2] === 'help') {
+  console.info('Print built package status');
+} else {
   const fmtByte = (byte: number) =>
     byte >= 1e6
       ? +(byte / 1e6).toFixed(2) + 'mb'

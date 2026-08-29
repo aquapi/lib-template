@@ -6,6 +6,10 @@ if (process.argv[2] === 'help') {
     'Tag and push commits with current version in ./package.json, which triggers ./.github/workflows/publish.yml workflow.',
   );
 } else {
-  execSync(`git tag ${JSON.stringify(pkg.version)}`);
-  execSync('git push');
+  execSync(`git tag ${JSON.stringify(pkg.version)}`, {
+    stdio: 'inherit',
+  });
+  execSync('git push', {
+    stdio: 'inherit',
+  });
 }

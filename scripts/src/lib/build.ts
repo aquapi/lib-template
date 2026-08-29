@@ -1,5 +1,4 @@
-import type { TransformOptions } from 'oxc-transform';
-import path from 'node:path';
+import path from 'node:path/posix';
 
 export interface BuildConfig {
   /**
@@ -27,11 +26,22 @@ export interface BuildConfig {
   /**
    * Transform options.
    */
-  transform: TransformOptions;
+  transform: (
+    path: string,
+    content: string,
+  ) =>
+    | {
+        code: string;
+        declaration?: string;
+      }
+    | Promise<{
+        code: string;
+        declaration?: string;
+      }>;
 }
 
 const defineConfig = (c: BuildConfig) => {
-  c.output = '.' + path.sep + path.relative('.', c.output);
+  c.output = './' + path.relative('.', c.output);
   return c;
 };
 export default defineConfig;
