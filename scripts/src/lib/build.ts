@@ -1,4 +1,4 @@
-import type { TransformOptions } from "oxc-transform";
+import type { TransformOptions } from 'oxc-transform';
 import path from 'node:path';
 
 export interface BuildConfig {
@@ -33,5 +33,5 @@ export interface BuildConfig {
 const defineConfig = (c: BuildConfig) => {
   c.output = '.' + path.sep + path.relative('.', c.output);
   return c;
-}
+};
 export default defineConfig;
