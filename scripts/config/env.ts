@@ -1,3 +1,6 @@
-import { node } from "../src/lib/env.ts";
+import defineConfig, { node, npm } from '../src/lib/env.ts';
 
-export default node();
+export default defineConfig({
+  runtime: node(),
+  packageManager: npm()
+});

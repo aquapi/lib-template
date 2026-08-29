@@ -1,7 +1,6 @@
-import path from 'node:path';
-import type { BuildConfig } from '../src/build.ts';
+import defineConfig from '../src/lib/build.ts';
 
-const buildConfig: BuildConfig = {
+export default defineConfig({
   output: 'dist',
 
   scripts: [],
@@ -22,11 +21,4 @@ const buildConfig: BuildConfig = {
     },
     lang: 'ts',
   },
-};
-
-// Normalize config
-{
-  buildConfig.output = './' + path.relative('.', buildConfig.output);
-}
-
-export default buildConfig;
+});

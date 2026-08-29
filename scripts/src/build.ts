@@ -1,6 +1,6 @@
 import pkg from '../../package.json' with { type: 'json' };
 
-import { transformSync, type TransformOptions } from 'oxc-transform';
+import { transformSync } from 'oxc-transform';
 
 import path from 'node:path';
 import { existsSync, globSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -9,37 +9,8 @@ import { readFile, writeFile, link } from 'node:fs/promises';
 import { measureAsyncTask, measureSyncTask } from './lib/tasks.ts';
 
 import buildConfig from '../config/build.ts';
-export interface BuildConfig {
-  /**
-   * Output directory.
-   */
-  output: string;
 
-  /**
-   * Asset patterns to include in package.
-   */
-  assets: ('LICENSE' | (string & {}))[];
-
-  /**
-   * Scripts to include.
-   */
-  scripts: string[];
-
-  /**
-   * File extensions to transform in `src`.
-   */
-  exts: {
-    [K in 'default' | 'types' | 'bun' | 'node' | 'deno' | 'workerd' | 'browser']?: string;
-  };
-
-  /**
-   * Transform options.
-   */
-  transform: TransformOptions;
-}
-
-if (process.argv[2] === 'help')
-  console.info('Build package to', buildConfig.output);
+if (process.argv[2] === 'help') console.info('Build package to', buildConfig.output);
 else {
   // Create output directory
   mkdirSync(buildConfig.output, { recursive: true });

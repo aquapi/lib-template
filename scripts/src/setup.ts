@@ -11,10 +11,8 @@ import envConfig from '../config/env.ts';
   const scripts: Record<string, string> = (pkg.scripts ||= {});
 
   for (const file of globSync('*.ts', { cwd: 'scripts/src' })) {
-    const realPath = 'scripts/src/' + file,
-      scriptName = file.slice(0, -3);
-
-    scripts[scriptName] = envConfig.run_script(JSON.stringify(realPath));
+    const scriptName = file.slice(0, -3);
+    scripts[scriptName] = envConfig.runtime.run('scripts/src/' + file);
     console.info('added script:', scriptName);
   }
 }
