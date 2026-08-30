@@ -1,19 +1,11 @@
 export interface EnvConfig {
-  runtime: RuntimeConfig;
-  packageManager: PackageManagerConfig;
+  runtime: {
+    run: (file: string) => string[];
+  };
+  packageManager: {
+    init: () => string[];
+    publish: (dir: string) => string[];
+  };
 }
 const defineConfig = (c: EnvConfig) => c;
 export default defineConfig;
-
-export const escapeValue = JSON.stringify;
-
-// Runtimes
-export interface RuntimeConfig {
-  run(file: string): string[];
-}
-
-// Package managers
-export interface PackageManagerConfig {
-  init(): string[];
-  publish(dir: string): string[];
-}

@@ -6,6 +6,13 @@
   "keywords": [],
   "homepage": "",
   "repository": "",
+  "exports": {
+    ".": "./index.mjs",
+    "./*": [
+      "./*.mjs",
+      "./*/index.mjs"
+    ]
+  },
   "scripts": {
     "fmt": "oxfmt",
     "setup": "node scripts/src/setup.ts",
@@ -21,6 +28,7 @@
     "oxc-transform": "^0.147.0",
     "oxfmt": "^0.65.0",
     "picocolors": "^1.1.1",
+    "tinyglobby": "^0.2.17",
     "typescript": "^7.0.2"
   },
   "sideEffects": false

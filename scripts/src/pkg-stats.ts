@@ -1,11 +1,8 @@
 import { globSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
-import path from 'node:path/posix';
 
 import { minifySync } from 'oxc-minify';
-
-import buildConfig from '../config/build.ts';
 
 if (process.argv[2] === 'help') {
   console.info('Print built package status');
@@ -19,8 +16,8 @@ if (process.argv[2] === 'help') {
 
   const result: Record<string, Record<string, string | number>> = {};
   await Promise.all(
-    globSync('**/*', { cwd: buildConfig.output }).map(async (file) => {
-      const realPath = './' + path.join(buildConfig.output, file),
+    globSync('**/*', { cwd: 'dist' }).map(async (file) => {
+      const realPath = './dist/' + file,
         code = await readFile(realPath, { encoding: 'utf8' });
 
       if (realPath.endsWith('.mjs')) {

@@ -1,118 +1,86 @@
 import pkg from '../../package.json' with { type: 'json' };
 
-import path from 'node:path/posix';
-import { existsSync, globSync, mkdirSync, writeFileSync } from 'node:fs';
-import { readFile, writeFile, link } from 'node:fs/promises';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
 
 import { measureAsyncTask, measureSyncTask } from './lib/tasks.ts';
 
 import buildConfig from '../config/build.ts';
 
 if (process.argv[2] === 'help') {
-  console.info('Build package to', buildConfig.output);
+  console.info('Build package to ./dist');
 } else {
-  // Create output directory
-  mkdirSync(buildConfig.output, { recursive: true });
+  const recursiveSearch = { recursive: true } as const;
 
-  // Link assets
-  await Promise.all(
-    buildConfig.assets.flatMap((pattern) =>
-      globSync(pattern).map((file) =>
-        measureAsyncTask(`link asset ./${path.relative('.', file)}`, (label) => {
-          const outputFile = path.join(buildConfig.output, file);
-          if (existsSync(outputFile)) {
-            console.log(label, 'symlink already existed');
-          } else {
-            mkdirSync(path.dirname(outputFile), { recursive: true });
-            return link(file, outputFile);
-          }
-        }),
-      ),
-    ),
-  );
+  rmSync('dist', recursiveSearch);
+  mkdirSync('dist', recursiveSearch);
 
-  // Transform files
   {
-    // @ts-ignore
-    const exports: Record<string, string | Record<string, string>> = (pkg.exports ||= {}),
-      setExport = (target: string, exportPath: string, realPath: string) => {
-        const oldExports = exports[exportPath];
+    const transformTasks: Promise<void>[] = [],
+      writeTasks: Promise<void>[] = [],
+      addWriteTask = (file: string, content: string) => {
+        writeTasks.push(measureAsyncTask(`write ${file}`, () => writeFile(file, content)));
+      };;
 
-        // Default export
-        if (typeof oldExports === 'string') {
-          if (target === 'default') exports[exportPath] = realPath;
-          else
-            exports[exportPath] = {
-              default: oldExports,
-              [target]: realPath,
-            };
-        }
-        // No export exists
-        else if (oldExports == null) {
-          exports[exportPath] = target === 'default' ? realPath : { [target]: realPath };
-        }
-        // Different targets export
-        else {
-          // @ts-ignore
-          exports[exportPath][target] = realPath;
-        }
-      },
-      exts = Object.entries(buildConfig.exts).sort((a, b) => b.length - a.length);
+    /**
+     * Pick up the files recursively, create subdirectories in `outdir` to mirror `dir` if necessary.
+     * @returns whether the callee should create the directory, if `false` it means the caller already creates the subdirectory recursively.
+     */
+    const recursiveTransform = async (
+      srcdir: string,
+      outdir: string
+    ): Promise<boolean> => {
+      let hasFiles = false,
+        subdirReads: Promise<boolean>[] = [];
 
-    let pendingFilePaths = globSync('**/*', { cwd: 'src' }),
-      nextPendingFilePaths: string[] = [];
+      for (const dirent of await readdir(srcdir, { withFileTypes: true })) {
+        const direntName = dirent.name;
+        if (direntName === 'node_modules' || direntName.startsWith('.')) continue;
 
-    // Check each target
-    for (const [target, ext] of exts) {
-      // If no file is pending
-      if (pendingFilePaths.length === 0) break;
+        if (dirent.isFile() || dirent.isSymbolicLink()) {
+          hasFiles = true;
 
-      const subExt = ext.slice(0, ext.lastIndexOf('.') + 1),
-        outputExt = subExt + 'mjs';
+          if (direntName.endsWith('.ts')) {
+            const srcPath = srcdir + direntName,
+              // index.
+              outPathWithoutExt = outdir + direntName.slice(0, -2);
 
-      await Promise.all(
-        pendingFilePaths.map((filePath) => {
-          if (filePath.endsWith(ext))
-            return measureAsyncTask(`transform ./src/${filePath}`, async () => {
-              const pathWithoutExt = filePath.slice(0, filePath.length - ext.length);
-
-              const transformed = await buildConfig.transform(
-                filePath,
-                await readFile('src/' + filePath, { encoding: 'utf8' }),
-              );
-
-              // Whether the code is not empty
-              if (transformed.code && transformed.code.trim() !== 'export {};') {
-                const outputPath = './' + pathWithoutExt + outputExt;
-                await writeFile(path.join(buildConfig.output, outputPath), transformed.code);
-
-                // Set export only for index.ts types of file
-                if (pathWithoutExt.endsWith('/index'))
-                  setExport(target, './' + pathWithoutExt.slice(6), outputPath);
-                else if (pathWithoutExt === 'index') setExport(target, '.', outputPath);
-              }
-
-              // Whether the declaration is not empty
-              if (transformed.declaration)
-                await writeFile(
-                  path.join(buildConfig.output, pathWithoutExt + subExt + 'd.ts'),
-                  transformed.declaration!,
+            transformTasks.push(
+              measureAsyncTask(`transform ${srcPath}`, async () => {
+                const transformed = buildConfig.transform(
+                  srcPath,
+                  await readFile(srcPath, { encoding: 'utf8' }),
                 );
-            });
 
-          // Mark as not consumed
-          nextPendingFilePaths.push(filePath);
-        }),
-      );
+                addWriteTask(outPathWithoutExt + 'mjs', transformed.code);
+                if (transformed.declaration != null)
+                  addWriteTask(outPathWithoutExt + 'd.mts', transformed.declaration);
+              })
+            );
+          }
+        } else if (dirent.isDirectory()) {
+          const subpath = direntName + '/';
+          subdirReads.push(recursiveTransform(srcdir + subpath, outdir + subpath));
+        }
+      }
 
-      // Some paths match
-      if (pendingFilePaths.length > nextPendingFilePaths.length)
-        setExport(target, './*', './*' + outputExt);
+      // Avoids a lot of syscalls if the directories only contain directories or is empty
+      if (subdirReads.length > 0)
+        for (let i = 0, dirNotCreatedResults = await Promise.all(subdirReads); i < dirNotCreatedResults.length; i++)
+          // Subdir reads already created the directory
+          if (!dirNotCreatedResults[i]) return false;
 
-      // Swap to paths that were not consumed
-      pendingFilePaths = nextPendingFilePaths;
-      nextPendingFilePaths = [];
-    }
+      if (hasFiles) {
+        await mkdir(outdir, recursiveSearch);
+        return false;
+      }
+
+      return true;
+    };
+    await recursiveTransform('./src/', './dist/');
+
+    await Promise.all(transformTasks);
+    await Promise.all(writeTasks);
   }
 
   // Make output package.json smaller
@@ -146,8 +114,8 @@ if (process.argv[2] === 'help') {
       if (keyCount === 0) delete pkg.scripts;
     }
 
-    measureSyncTask('write ./package.json', () =>
-      writeFileSync(path.join(buildConfig.output, 'package.json'), JSON.stringify(pkg)),
+    measureSyncTask('write ./dist/package.json', () =>
+      writeFileSync('dist/package.json', JSON.stringify(pkg)),
     );
   }
 }
