@@ -4,6 +4,9 @@ import { gzipSync } from 'node:zlib';
 
 import { minifySync } from 'oxc-minify';
 
+import { enableCompileCache } from 'node:module';
+enableCompileCache();
+
 if (process.argv[2] === 'help') {
   console.info('Print built package status');
 } else {

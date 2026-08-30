@@ -1,5 +1,5 @@
-import defineConfig from '../src/lib/env.ts';
-import cmd from '../src/lib/cmd.ts';
+import defineConfig from '../src/lib/env.mts';
+import cmd from '../src/lib/cmd.mts';
 
 export default defineConfig({
   runtime: {
