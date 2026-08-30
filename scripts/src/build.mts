@@ -12,42 +12,6 @@ enableCompileCache();
 if (process.argv[2] === 'help') {
   console.info('Build package to ./dist');
 } else {
-  // Make output package.json smaller
-  {
-    // @ts-ignore
-    delete pkg.devDependencies;
-    // @ts-ignore
-    delete pkg.trustedDependencies;
-    // @ts-ignore
-    delete pkg.packageManager;
-
-    {
-      let keyCount = 0,
-        // @ts-ignore
-        scripts: Record<string, string> = (pkg.scripts ||= {});
-
-      for (const key in scripts) {
-        if (
-          // Keep install scripts
-          key !== 'preinstall' &&
-          key !== 'install' &&
-          key !== 'postinstall' &&
-          key !== 'prepare' &&
-          !buildConfig.scripts.includes(key)
-        )
-          delete scripts[key];
-        else keyCount++;
-      }
-
-      // @ts-ignore
-      if (keyCount === 0) delete pkg.scripts;
-    }
-
-    measureAsyncTask('write ./dist/package.json', () =>
-      writeFile('dist/package.json', JSON.stringify(pkg)),
-    );
-  }
-
   // Transform files
   (async () => {
     const recursively = { recursive: true } as const,
@@ -131,4 +95,40 @@ if (process.argv[2] === 'help') {
 
     await Promise.all(writeTasks);
   })();
+
+  // Make output package.json smaller
+  {
+    // @ts-ignore
+    delete pkg.devDependencies;
+    // @ts-ignore
+    delete pkg.trustedDependencies;
+    // @ts-ignore
+    delete pkg.packageManager;
+
+    {
+      let keyCount = 0,
+        // @ts-ignore
+        scripts: Record<string, string> = (pkg.scripts ||= {});
+
+      for (const key in scripts) {
+        if (
+          // Keep install scripts
+          key !== 'preinstall' &&
+          key !== 'install' &&
+          key !== 'postinstall' &&
+          key !== 'prepare' &&
+          !buildConfig.scripts.includes(key)
+        )
+          delete scripts[key];
+        else keyCount++;
+      }
+
+      // @ts-ignore
+      if (keyCount === 0) delete pkg.scripts;
+    }
+
+    measureAsyncTask('write ./dist/package.json', () =>
+      writeFile('dist/package.json', JSON.stringify(pkg)),
+    );
+  }
 }
