@@ -46,11 +46,11 @@ if (process.argv[2] === 'help') {
 
                 return transformed.declaration != null
                   ? [
-                    outPathWithoutExt + 'mjs',
-                    transformed.code,
-                    outPathWithoutExt + 'd.mts',
-                    transformed.declaration,
-                  ]
+                      outPathWithoutExt + 'mjs',
+                      transformed.code,
+                      outPathWithoutExt + 'd.mts',
+                      transformed.declaration,
+                    ]
                   : [outPathWithoutExt + 'mjs', transformed.code];
               }),
             );
@@ -82,8 +82,7 @@ if (process.argv[2] === 'help') {
 
       return true;
     };
-    if (await recursiveTransform('./src/', './dist/'))
-      await mkdir('dist', recursively);
+    if (await recursiveTransform('./src/', './dist/')) await mkdir('dist', recursively);
 
     const writeTasks: Promise<void>[] = [];
     for (const result of await Promise.all(beforeWriteTasks))
@@ -108,19 +107,12 @@ if (process.argv[2] === 'help') {
     {
       let keyCount = 0,
         // @ts-ignore
-        scripts: Record<string, string> = (pkg.scripts ||= {});
+        scripts: Record<string, string> = (pkg.scripts ||= {}),
+        scriptRegex = new RegExp(`^(?:pre|post|)(?:${buildConfig.scripts.join('|')})$`);
 
       for (const key in scripts) {
-        if (
-          // Keep install scripts
-          key !== 'preinstall' &&
-          key !== 'install' &&
-          key !== 'postinstall' &&
-          key !== 'prepare' &&
-          !buildConfig.scripts.includes(key)
-        )
-          delete scripts[key];
-        else keyCount++;
+        if (scriptRegex.test(key)) keyCount++;
+        else delete scripts[key];
       }
 
       // @ts-ignore

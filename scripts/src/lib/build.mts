@@ -1,6 +1,6 @@
 export interface BuildConfig {
   /**
-   * Scripts to include.
+   * Scripts to include in final `package.json`.
    */
   scripts: string[];
 

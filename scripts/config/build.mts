@@ -2,7 +2,7 @@ import { transformSync } from 'oxc-transform';
 import defineConfig from '../src/lib/build.mts';
 
 export default defineConfig({
-  scripts: [],
+  scripts: ['install', 'uninstall', 'prepare', 'prepublish'],
 
   transform: (relativePath, content) =>
     transformSync(relativePath, content, {
