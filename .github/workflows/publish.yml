@@ -15,21 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Setup node
-      - uses: actions/setup-node@v4
-        with:
-          registry-url: 'https://registry.npmjs.org'
+      # Setup runtime
+      - uses: oven-sh/setup-bun@v2
 
       # Setup
       - name: Setup package
-        run: |
-          node --run setup
+        run: bun setup
 
       # Build
       - name: Build
-        run: |
-          node --run build
+        run: bun run build
 
       # Publish
       - name: Publish
-        run: node --run publish
+        run: bun run publish
