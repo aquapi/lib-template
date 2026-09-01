@@ -15,84 +15,88 @@ if (process.argv[2] === 'help') {
   // Transform files
   (async () => {
     const recursively = { recursive: true } as const,
-      beforeWriteTasks: Promise<string[] | void>[] = [];
+      // [path, content, ...]
+      writeContents: string[] = [];
 
-    /**
-     * Pick up the files recursively, queue `mkdir` tasks to create subdirectories and `transform` tasks to transform files concurrently.
-     * @returns whether the callee should create the directory, if `false` it means the caller already creates the subdirectory recursively.
-     */
-    const recursiveTransform = async (srcdir: string, outdir: string): Promise<boolean> => {
-      let hasFiles = false,
-        subdirReads: Promise<boolean>[] = [];
+    {
+      const beforeWriteTasks: Promise<void>[] = [];
 
-      for (const dirent of await readdir(srcdir, { withFileTypes: true })) {
-        const direntName = dirent.name;
-        if (direntName === 'node_modules' || direntName.startsWith('.')) continue;
+      /**
+       * Pick up the files recursively, queue `mkdir` tasks to create subdirectories and `transform` tasks to transform files concurrently.
+       * @returns whether the callee should create the directory, if `false` it means the caller already creates the subdirectory recursively.
+       */
+      const recursiveTransform = async (srcdir: string, outdir: string): Promise<boolean> => {
+        let hasFiles = false,
+          subdirReads: Promise<boolean>[] = [];
 
-        if (dirent.isFile() || dirent.isSymbolicLink()) {
-          hasFiles = true;
+        for (const dirent of await readdir(srcdir, { withFileTypes: true })) {
+          const direntName = dirent.name;
+          if (direntName === 'node_modules' || direntName.startsWith('.')) continue;
 
-          if (direntName.endsWith('.mts')) {
-            const srcPath = srcdir + direntName,
-              // index.
-              outPathWithoutExt = outdir + direntName.slice(0, -3);
+          if (dirent.isFile() || dirent.isSymbolicLink()) {
+            hasFiles = true;
 
-            beforeWriteTasks.push(
-              measureAsyncTask(`transform ${srcPath}`, async () => {
-                const transformed = buildConfig.transform(
-                  srcPath,
-                  await readFile(srcPath, { encoding: 'utf8' }),
-                );
+            if (direntName.endsWith('.mts')) {
+              const srcPath = srcdir + direntName,
+                // index.
+                outPathWithoutExt = outdir + direntName.slice(0, -3);
 
-                return transformed.declaration != null
-                  ? [
-                      outPathWithoutExt + 'mjs',
-                      transformed.code,
-                      outPathWithoutExt + 'd.mts',
-                      transformed.declaration,
-                    ]
-                  : [outPathWithoutExt + 'mjs', transformed.code];
-              }),
-            );
+              beforeWriteTasks.push(
+                measureAsyncTask(`transform ${srcPath}`, async () => {
+                  const transformed = buildConfig.transform(
+                    srcPath,
+                    await readFile(srcPath, { encoding: 'utf8' }),
+                  );
+
+                  writeContents.push(outPathWithoutExt + 'mjs', transformed.code);
+                  if (transformed.declaration != null)
+                    writeContents.push(outPathWithoutExt + 'd.mts', transformed.declaration);
+                }),
+              );
+            }
+          } else if (dirent.isDirectory()) {
+            const subpath = direntName + '/';
+            subdirReads.push(recursiveTransform(srcdir + subpath, outdir + subpath));
           }
-        } else if (dirent.isDirectory()) {
-          const subpath = direntName + '/';
-          subdirReads.push(recursiveTransform(srcdir + subpath, outdir + subpath));
         }
-      }
 
-      // Avoids a lot of syscalls if the directories only contain directories or is empty
-      if (subdirReads.length > 0)
-        for (
-          let i = 0, dirNotCreatedResults = await Promise.all(subdirReads);
-          i < dirNotCreatedResults.length;
-          i++
-        )
-          // Subdir reads already created the directory
-          if (!dirNotCreatedResults[i]) return false;
+        // Avoids a lot of syscalls if the directories only contain directories or is empty
+        if (subdirReads.length > 0)
+          for (
+            let i = 0, dirNotCreatedResults = await Promise.all(subdirReads);
+            i < dirNotCreatedResults.length;
+            i++
+          )
+            // Subdir reads already created the directory
+            if (!dirNotCreatedResults[i]) return false;
 
-      if (hasFiles) {
-        beforeWriteTasks.push(
-          // @ts-ignore
-          measureAsyncTask(`mkdir ${outdir}`, () => mkdir(outdir, recursively)),
-        );
-
-        return false;
-      }
-
-      return true;
-    };
-    if (await recursiveTransform('./src/', './dist/')) await mkdir('dist', recursively);
-
-    const writeTasks: Promise<void>[] = [];
-    for (const result of await Promise.all(beforeWriteTasks))
-      if (result != null)
-        for (let i = 0; i < result.length; i += 2)
-          writeTasks.push(
-            measureAsyncTask(`write ${result[i]}`, () => writeFile(result[i], result[i + 1])),
+        if (hasFiles) {
+          beforeWriteTasks.push(
+            // @ts-ignore
+            measureAsyncTask(`mkdir ${outdir}`, () => mkdir(outdir, recursively)),
           );
 
-    await Promise.all(writeTasks);
+          return false;
+        }
+
+        return true;
+      };
+      if (await recursiveTransform('./src/', './dist/')) await mkdir('dist', recursively);
+
+      await Promise.all(beforeWriteTasks);
+    }
+
+    {
+      const halfLen = writeContents.length >>> 1,
+        writeTasks: Promise<void>[] = new Array(halfLen);
+
+      for (let i = 0; i < halfLen; i++)
+        writeTasks[i] = measureAsyncTask(`write ${writeContents[i << 1]}`, () =>
+          writeFile(writeContents[i << 1], writeContents[(i << 1) + 1]),
+        );
+
+      await Promise.all(writeTasks);
+    }
   })();
 
   // Make output package.json smaller
