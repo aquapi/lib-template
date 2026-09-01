@@ -10,6 +10,4 @@ deno run scripts/src/setup.mts
 bun run scripts/src/setup.mts
 ```
 
-Change script configurations in [./scripts/config](./scripts/config).
-
 To change runtime and package manager, change [./scripts/config/env.mts](./scripts/config/env.mts) and [./.github/workflows/publish.yml](./.github/workflows/publish.yml).
