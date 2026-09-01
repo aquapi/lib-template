@@ -1,13 +1,13 @@
 # Setup
 ```sh
 # node
-node --run setup
+node scripts/src/setup.mts
 
 # deno
-deno run setup
+deno run scripts/src/setup.mts
 
 # bun
-bun setup
+bun run scripts/src/setup.mts
 ```
 
 Change script configurations in [./scripts/config](./scripts/config).

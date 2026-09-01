@@ -1,10 +1,22 @@
 export interface EnvConfig {
   runtime: {
-    run: (file: string) => string[];
+    runScript: (file: string) => string;
   };
   packageManager: {
-    init: () => string[];
-    publish: (dir: string) => string[];
+    /**
+     * Setup dependencies.
+     */
+    init: () => void;
+
+    /**
+     * Install dev package.
+     */
+    devInstall: () => void;
+
+    /**
+     * Publish package.
+     */
+    publish: () => void;
   };
 }
 const defineConfig = (c: EnvConfig) => c;

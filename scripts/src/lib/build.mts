@@ -5,6 +5,11 @@ export interface BuildConfig {
   scripts: string[];
 
   /**
+   * Assets to include.
+   */
+  assets: string[];
+
+  /**
    * Transform options.
    */
   transform: (

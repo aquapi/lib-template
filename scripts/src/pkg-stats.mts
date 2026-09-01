@@ -1,6 +1,6 @@
-import { globSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
+import { globSync } from 'tinyglobby';
 
 import { minifySync } from 'oxc-minify';
 
@@ -18,8 +18,9 @@ if (process.argv[2] === 'help') {
         : byte + 'b';
 
   const result: Record<string, Record<string, string | number>> = {};
+
   await Promise.all(
-    globSync('**/*', { cwd: 'dist' }).map(async (file) => {
+    globSync('**/*', { cwd: 'dist', onlyFiles: true }).map(async (file) => {
       const realPath = './dist/' + file,
         code = await readFile(realPath, { encoding: 'utf8' });
 
