@@ -1,5 +1,5 @@
 import { transformSync } from 'oxc-transform';
-import defineConfig from '../src/lib/build.mts';
+import defineConfig from '../lib/build.mts';
 
 export default defineConfig({
   scripts: ['install', 'uninstall', 'prepare', 'prepublish'],

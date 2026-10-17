@@ -1,8 +1,8 @@
-import { execFileSync } from 'node:child_process';
-import pkg from '../../package.json';
-
 import { enableCompileCache } from 'node:module';
 enableCompileCache();
+
+import { execFileSync } from 'node:child_process';
+import pkg from '../../package.json';
 
 if (process.argv[2] === 'help') {
   console.info(

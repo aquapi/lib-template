@@ -1,11 +1,11 @@
+import { enableCompileCache } from 'node:module';
+enableCompileCache();
+
 import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 import { globSync } from 'tinyglobby';
 
 import { minifySync } from 'oxc-minify';
-
-import { enableCompileCache } from 'node:module';
-enableCompileCache();
 
 if (process.argv[2] === 'help') {
   console.info('Print built package status');

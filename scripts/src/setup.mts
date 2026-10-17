@@ -2,13 +2,10 @@ import { writeFileSync } from 'node:fs';
 
 import pkg from '../../package.json' with { type: 'json' };
 
-import { measureSyncTask } from './lib/tasks.mts';
+import { measureSyncTask } from '../lib/tasks.mts';
 import envConfig from '../config/env.mts';
 
 import { globSync } from 'tinyglobby';
-
-import { enableCompileCache } from 'node:module';
-enableCompileCache();
 
 measureSyncTask('update package.json scripts', () => {
   {
