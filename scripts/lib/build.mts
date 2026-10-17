@@ -1,5 +1,10 @@
 export interface BuildConfig {
   /**
+   * Package name.
+   */
+  name: string;
+
+  /**
    * Scripts to include in final `package.json`.
    */
   scripts: string[];

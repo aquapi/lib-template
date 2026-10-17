@@ -119,6 +119,9 @@ if (process.argv[2] === 'help') {
 
     measureAsyncTask('create & optimize package.json', () => {
       // @ts-ignore
+      pkg.name = buildConfig.name;
+
+      // @ts-ignore
       delete pkg.devDependencies;
       // @ts-ignore
       delete pkg.trustedDependencies;
