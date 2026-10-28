@@ -10,5 +10,5 @@ if (process.argv[2] === 'help') {
   );
 } else {
   execFileSync('git', ['tag', pkg.version]);
-  execFileSync('git', ['push']);
+  execFileSync('git', ['push', '--tags']);
 }
