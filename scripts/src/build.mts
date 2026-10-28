@@ -11,8 +11,6 @@ if (process.argv[2] === 'help') {
   console.info('Build package to ./dist');
 } else {
   const recursively = { recursive: true } as const;
-  await mkdir('dist', recursively);
-
   await Promise.all([
     measureAsyncTask('link assets', async () =>
       Promise.all(

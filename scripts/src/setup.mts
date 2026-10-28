@@ -1,4 +1,4 @@
-import { globSync, writeFileSync } from 'node:fs';
+import { globSync, mkdirSync, writeFileSync } from 'node:fs';
 
 import pkg from '../../package.json' with { type: 'json' };
 
@@ -40,5 +40,6 @@ measureSyncTask('create & optimize dist/package.json', () => {
     if (Object.keys(scripts).length === 0) delete pkg.scripts;
   }
 
+  mkdirSync('dist', { recursive: true });
   writeFileSync('dist/package.json', JSON.stringify(pkg));
 });
