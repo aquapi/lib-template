@@ -25,7 +25,7 @@ jobs:
       # Setup
       - name: Setup package
         run: |
-          node --run setup
+          node scripts/src/setup.mts
           npm i
 
       # Build
