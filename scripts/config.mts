@@ -3,10 +3,11 @@ import sh from './lib/sh.mts';
 
 export default defineConfig({
   package: {
-    assets: ['README.md', 'LICENSE'],
+    name: 'example',
     scripts: {
       include: ['install', 'uninstall', 'prepare', 'prepublish'],
       runFile: (file) => sh`node ${file}`,
     },
+    assets: ['README.md', 'LICENSE'],
   },
 });

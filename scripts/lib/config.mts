@@ -1,13 +1,21 @@
 export interface Config {
   package: {
+    /**
+     * Package name.
+     */
+    name: string;
+
+    /**
+     * Script options.
+     */
     scripts: {
       /**
-       * Scripts to include in final `package.json`.
+       * Scripts to include (including pre/post hooks) in final `package.json`.
        */
       include: string[];
 
       /**
-       * Command to execute a file.
+       * Script to execute a file.
        */
       runFile: (file: string) => string;
     };

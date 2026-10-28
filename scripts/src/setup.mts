@@ -22,6 +22,9 @@ measureSyncTask('update package.json scripts', () => {
 
 measureSyncTask('create & optimize dist/package.json', () => {
   // @ts-ignore
+  pkg.name = config.package.name;
+
+  // @ts-ignore
   delete pkg.devDependencies;
   // @ts-ignore
   delete pkg.trustedDependencies;
