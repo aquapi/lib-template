@@ -28,8 +28,6 @@ measureSyncTask('create & optimize dist/package.json', () => {
   delete pkg.devDependencies;
   // @ts-ignore
   delete pkg.trustedDependencies;
-  // @ts-ignore
-  delete pkg.packageManager;
 
   {
     // @ts-ignore

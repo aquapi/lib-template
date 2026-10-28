@@ -1,5 +1,4 @@
 {
-  "name": "example",
   "type": "module",
   "version": "0.0.1",
   "description": "",
@@ -11,7 +10,8 @@
     "./*": "./*.mjs"
   },
   "scripts": {
-    "fmt": "oxfmt"
+    "fmt": "oxfmt",
+    "test": "node --test tests/**/*.test.mts"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",

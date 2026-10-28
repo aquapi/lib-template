@@ -33,6 +33,7 @@
     "declaration": true,
     "noEmit": true,
 
+    // Types
     "types": ["node"]
   }
 }
