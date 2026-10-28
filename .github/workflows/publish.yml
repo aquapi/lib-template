@@ -31,6 +31,10 @@ jobs:
       - name: Build
         run: node --run build
 
+      # Test
+      - name: Test
+        run: node --run test
+
       # Publish
       - name: Publish
-        run: pnpm stage publish ./dist
+        run: pnpm stage publish ./dist --no-git-checks
