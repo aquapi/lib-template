@@ -31,6 +31,8 @@
 
     // Declaration
     "declaration": true,
-    "noEmit": true
+    "noEmit": true,
+
+    "types": ["node"]
   }
 }

@@ -3,9 +3,9 @@ enableCompileCache();
 
 import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
-import { globSync } from 'tinyglobby';
 
 import { minifySync } from 'oxc-minify';
+import { globSync } from 'node:fs';
 
 if (process.argv[2] === 'help') {
   console.info('Print built package status');
@@ -20,21 +20,23 @@ if (process.argv[2] === 'help') {
   const result: Record<string, Record<string, string | number>> = {};
 
   await Promise.all(
-    globSync('**/*', { cwd: 'dist', onlyFiles: true }).map(async (file) => {
-      const realPath = './dist/' + file,
-        code = await readFile(realPath, { encoding: 'utf8' });
+    globSync('**/*', { cwd: 'dist' }).map(async (file) => {
+      try {
+        const realPath = './dist/' + file,
+          code = await readFile(realPath, { encoding: 'utf8' });
 
-      if (realPath.endsWith('.mjs')) {
-        const { code: minified } = minifySync(file, code);
-        result[realPath] = {
-          size: fmtByte(code.length),
-          'minified size': fmtByte(minified.length),
-          'compressed size': fmtByte(gzipSync(minified).byteLength),
-        };
-      } else
-        result[realPath] = {
-          size: fmtByte(code.length),
-        };
+        if (realPath.endsWith('.mjs')) {
+          const { code: minified } = minifySync(file, code);
+          result[realPath] = {
+            size: fmtByte(code.length),
+            'minified size': fmtByte(minified.length),
+            'compressed size': fmtByte(gzipSync(minified).byteLength),
+          };
+        } else
+          result[realPath] = {
+            size: fmtByte(code.length),
+          };
+      } catch {}
     }),
   );
 

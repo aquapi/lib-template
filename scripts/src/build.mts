@@ -1,15 +1,11 @@
 import { enableCompileCache } from 'node:module';
 enableCompileCache();
 
-import pkg from '../../package.json' with { type: 'json' };
-
-import { readFile, writeFile, readdir, mkdir, link } from 'node:fs/promises';
+import { transformSync } from 'oxc-transform';
+import { readFile, writeFile, readdir, mkdir, link, glob } from 'node:fs/promises';
 
 import { measureAsyncTask } from '../lib/tasks.mts';
-import buildConfig from '../config/build.mts';
-import envConfig from '../config/env.mts';
-
-import { glob } from 'tinyglobby';
+import config from '../config.mts';
 
 if (process.argv[2] === 'help') {
   console.info('Build package to ./dist');
@@ -20,12 +16,16 @@ if (process.argv[2] === 'help') {
   await Promise.all([
     measureAsyncTask('link assets', async () =>
       Promise.all(
-        (await glob(buildConfig.assets)).map((file) => {
+        (await Array.fromAsync(glob(config.package.assets))).map((file) => {
           const finalPath = './dist/' + file;
 
           return measureAsyncTask(`symlink ./${file} to ${finalPath}`, async () => {
             await mkdir(finalPath.slice(0, finalPath.lastIndexOf('/')), recursively);
-            return link(file, finalPath);
+            try {
+              return await link(file, finalPath);
+            } catch (e: any) {
+              if (e.code !== 'EEXIST') throw e;
+            }
           });
         }),
       ),
@@ -61,9 +61,19 @@ if (process.argv[2] === 'help') {
 
               tasks.push(
                 measureAsyncTask(`transform ${srcPath}`, async () => {
-                  const transformed = buildConfig.transform(
+                  const transformed = transformSync(
                     srcPath,
                     await readFile(srcPath, { encoding: 'utf8' }),
+                    {
+                      sourceType: 'module',
+                      typescript: {
+                        rewriteImportExtensions: true,
+                        declaration: {
+                          stripInternal: true,
+                        },
+                      },
+                      lang: 'ts',
+                    },
                   );
 
                   writeContents.push(outPathWithoutExt + 'mjs', transformed.code);
@@ -116,33 +126,5 @@ if (process.argv[2] === 'help') {
 
       await Promise.all(writeTasks);
     }),
-
-    measureAsyncTask('create & optimize package.json', () => {
-      // @ts-ignore
-      pkg.name = buildConfig.name;
-
-      // @ts-ignore
-      delete pkg.devDependencies;
-      // @ts-ignore
-      delete pkg.trustedDependencies;
-      // @ts-ignore
-      delete pkg.packageManager;
-
-      {
-        // @ts-ignore
-        let scripts: Record<string, string> = (pkg.scripts ||= {}),
-          scriptRegex = new RegExp(`^(?:pre|post)?(?:${buildConfig.scripts.join('|')})$`);
-
-        for (const key in scripts)
-          if (!scriptRegex.test(key)) delete scripts[key];
-
-        // @ts-ignore
-        if (Object.keys(scripts).length === 0) delete pkg.scripts;
-      }
-
-      return writeFile('dist/package.json', JSON.stringify(pkg));
-    }),
   ]);
-
-  envConfig.packageManager.devInstall();
 }

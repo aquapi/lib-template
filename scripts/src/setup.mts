@@ -1,11 +1,10 @@
-import { writeFileSync } from 'node:fs';
+import { globSync, writeFileSync } from 'node:fs';
 
 import pkg from '../../package.json' with { type: 'json' };
 
 import { measureSyncTask } from '../lib/tasks.mts';
 import envConfig from '../config/env.mts';
-
-import { globSync } from 'tinyglobby';
+import config from '../config.mts';
 
 measureSyncTask('update package.json scripts', () => {
   {
@@ -14,7 +13,7 @@ measureSyncTask('update package.json scripts', () => {
 
     for (const file of globSync('*.mts', { cwd: 'scripts/src' })) {
       const scriptName = file.slice(0, -4);
-      scripts[scriptName] = envConfig.runtime.runScript('scripts/src/' + file);
+      scripts[scriptName] = envConfig.scripts.runFile('scripts/src/' + file);
       console.info('added script:', scriptName);
     }
   }
@@ -22,4 +21,24 @@ measureSyncTask('update package.json scripts', () => {
   writeFileSync('package.json', JSON.stringify(pkg, null, 2));
 });
 
-envConfig.packageManager.init();
+measureSyncTask('create & optimize dist/package.json', () => {
+  // @ts-ignore
+  delete pkg.devDependencies;
+  // @ts-ignore
+  delete pkg.trustedDependencies;
+  // @ts-ignore
+  delete pkg.packageManager;
+
+  {
+    // @ts-ignore
+    let scripts: Record<string, string> = (pkg.scripts ||= {}),
+      scriptRegex = new RegExp(`^(?:pre|post)?(?:${config.package.scripts.include.join('|')})$`);
+
+    for (const key in scripts) if (!scriptRegex.test(key)) delete scripts[key];
+
+    // @ts-ignore
+    if (Object.keys(scripts).length === 0) delete pkg.scripts;
+  }
+
+  writeFileSync('dist/package.json', JSON.stringify(pkg));
+});
