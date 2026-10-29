@@ -18,7 +18,6 @@
     "oxc-minify": "^0.154.0",
     "oxc-transform": "^0.154.0",
     "oxfmt": "^0.73.0",
-    "picocolors": "^1.1.1",
     "typescript": "^7.0.2"
   },
   "sideEffects": false
